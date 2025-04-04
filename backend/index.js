@@ -7,7 +7,7 @@ import {
   getAuth,
 } from "@clerk/express";
 import "dotenv/config";
-import { MongoClient, ServerApiVersion } from "mongodb";
+import { MongoClient, ServerApiVersion, ObjectId } from "mongodb";
 import { connectDb } from "./utils.js";
 
 const app = express();
@@ -91,22 +91,24 @@ app.get("/getEvents", async (req, res) => {
   return res.json({ result });
 });
 
-// app.patch("/joinEvent", async (req, res) => {
-//   const events = db.collection("events");
+app.patch("/joinEvent", async (req, res) => {
+  const events = db.collection("events");
 
-//   const { userId } = getAuth(req);
-//   const eventId = req.query.eventId;
+  const { userId } = getAuth(req);
+  const eventId = req.query.eventId;
 
-//   const event = await events.findOne({ _id: eventId });
+  const event = await events.findOne({ _id: new ObjectId(eventId) });
+  if (event.joinedBy.length >= event.personLimit) {
+    return res.status(400).json({ message: "Event is full" });
+  }
 
-//   if (event.joinedBy.length >= event.personLimit) {
-//     return res.status(400).json({ message: "Event is full" });
-//   }
+  await events.updateOne(
+    { _id: new ObjectId(eventId) },
+    { $addToSet: { joinedBy: userId } }
+  );
 
-//   await events.updateOne({ _id: eventId }, { $addToSet: { joinedBy: userId } });
-
-//   return res.json({ message: "Joined event" });
-// });
+  return res.json({ message: "Joined event" });
+});
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
