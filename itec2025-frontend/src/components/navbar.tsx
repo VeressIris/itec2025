@@ -28,7 +28,7 @@ const pages = [
 
 const settings = [
   { label: "My Profile", href: "/profile" },
-  { label: "My Events", href: "/profile/projects" },
+  { label: "My Events", href: "/events/my-events" },
 ]
 
 export default function Navbar(): React.ReactElement {

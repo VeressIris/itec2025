@@ -143,12 +143,12 @@ export default function Page() {
 
     return (
         <Stack alignItems="center" spacing={2} sx={{ mt: 5 }}>
-            <Typography gutterBottom variant="h5" component="div" color="black">
+            <Typography gutterBottom variant="h5" component="div" color="black" >
             Upcoming Events
             </Typography>
 
             {events.length === 0 ? (
-                <Typography variant="h6" color="gray">
+                <Typography variant="h6" color="gray" >
                     No events found for this month.
                 </Typography>
             ) : (
