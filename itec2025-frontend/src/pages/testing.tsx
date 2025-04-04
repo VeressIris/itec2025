@@ -62,7 +62,7 @@ export default function Test() {
         <input
           type="text"
           name="description"
-          placeholder="event name"
+          placeholder="event description"
           required
         ></input>
         <input type="datetime-local" name="date" required></input>
@@ -73,14 +73,53 @@ export default function Test() {
           <option value="11">11th</option>
           <option value="12">12th</option>
         </select>
-        <label>What grade?</label>
-        <select name="grade" id="grade" required>
-          <option value="9">9th</option>
-          <option value="10">10th</option>
-          <option value="11">11th</option>
-          <option value="12">12th</option>
+        <br />
+        <select name="class" id="class" required>
+          <option value="math">Math</option>
+          <option value="chemistry">Chemistry</option>
+          <option value="biology">Biology</option>
+          <option value="english">English</option>
+          <option value="computerScience">Computer science</option>
         </select>
-        <button type="submit">Add event</button>
+        <br />
+        <input
+          type="number"
+          name="personLimit"
+          placeholder="person limit"
+        ></input>
+        <br />
+        <button
+          type="submit"
+          onClick={async (e) => {
+            e.preventDefault();
+
+            const form = document.getElementById(
+              "eventForm"
+            ) as HTMLFormElement;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            const token = await getToken();
+            console.log(data);
+            //https://itec2025.onrender.com/addEvent
+            fetch("http://localhost:3001/addEvent", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify(data),
+            }).then((response) => {
+              if (response.ok) {
+                console.log("Event added successfully");
+              } else {
+                console.error("Error adding event");
+              }
+            });
+          }}
+        >
+          Add event
+        </button>
       </form>
     </div>
   );

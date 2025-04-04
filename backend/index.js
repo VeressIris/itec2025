@@ -45,20 +45,26 @@ app.post("/addUser", requireAuth(), async (req, res) => {
     lastName: user.lastName,
     grade: req.body.grade,
     username: req.body.username,
+    imageUrl: user.imageUrl,
   });
 
   return res.json({ result });
 });
 
-app.post("/addEvent", async (req, res) => {
+app.post("/addEvent", requireAuth(), async (req, res) => {
   const events = db.collection("events");
   const { userId } = getAuth(req);
 
   const user = await clerkClient.users.getUser(userId);
   events.insertOne({
-    addedBy: user,
+    addedBy: {
+      clerkId: userId,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      imageUrl: user.imageUrl,
+    },
     date: req.body.date,
-    joinedBy: [user.userId],
+    joinedBy: [userId],
     title: req.body.title,
     description: req.body.description,
     class: req.body.class,
