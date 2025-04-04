@@ -17,6 +17,7 @@ import {
   Typography,
 } from "@mui/material";
 
+
 import { SignedIn, SignedOut, useClerk } from "@clerk/nextjs";
 
 const title = "BrainCircle";
@@ -74,7 +75,6 @@ export default function Navbar(): React.ReactElement {
             sx={{
               mr: 2,
               display: { xs: "none", md: "flex" },
-              fontFamily: "monospace",
               fontWeight: 700,
               letterSpacing: ".1rem",
               color: "inherit",
@@ -138,7 +138,6 @@ export default function Navbar(): React.ReactElement {
             href="/"
             sx={{
               display: { xs: "flex", md: "none" },
-              fontFamily: "monospace",
               fontWeight: 700,
               letterSpacing: ".1rem",
               color: "inherit",
