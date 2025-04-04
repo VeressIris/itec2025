@@ -16,6 +16,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+
 import { SignedIn, SignedOut, useClerk } from "@clerk/nextjs";
 
 const title = "BrainCircle";
@@ -59,7 +60,7 @@ export default function Navbar(): React.ReactElement {
     <AppBar
       position="fixed"
       sx={{
-        backgroundImage: "linear-gradient(to right, #ca5a29, #a31755)",
+        backgroundImage: "linear-gradient(to right,rgb(70, 23, 163),rgb(138, 41, 202))",
         boxShadow: "none",
       }}
     >
