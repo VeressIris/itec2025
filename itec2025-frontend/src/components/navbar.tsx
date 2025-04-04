@@ -23,13 +23,13 @@ import { SignedIn, SignedOut, useClerk } from "@clerk/nextjs";
 const title = "BrainCircle";
 
 const pages = [
-  { label: "Events of the month", href: "/events/events-of-the-month" },
+  { label: "Upcoming Events", href: "/events/upcoming-events" },
 ];
 
 const settings = [
   { label: "My Profile", href: "/profile" },
   { label: "My Events", href: "/profile/projects" },
-];
+];F
 
 export default function Navbar(): React.ReactElement {
   const { signOut, redirectToSignIn, user } = useClerk();
