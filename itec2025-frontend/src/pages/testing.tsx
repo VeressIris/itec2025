@@ -1,10 +1,11 @@
+import { useAuth } from "@clerk/nextjs";
+
 export default function Test() {
-  //   async function addUser() {
-  //   }
+  const { getToken } = useAuth();
   return (
     <div>
       <h1>Test add user</h1>
-      <form>
+      <form id="userForm">
         <input
           type="text"
           name="username"
@@ -21,17 +22,22 @@ export default function Test() {
         </select>
         <button
           type="submit"
-          onClick={(e) => {
+          onClick={async (e) => {
             e.preventDefault();
-            const form = e.target as HTMLFormElement;
+
+            const form = document.getElementById("userForm") as HTMLFormElement;
             const formData = new FormData(form);
             const data = Object.fromEntries(formData.entries());
+
+            const token = await getToken();
+            console.log(token);
             fetch("https://itec2025.onrender.com/addUser", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
               },
-              body: JSON.stringify({...data}),
+              body: JSON.stringify({ data }),
             }).then((response) => {
               if (response.ok) {
                 console.log("User added successfully");
@@ -45,7 +51,36 @@ export default function Test() {
         </button>
       </form>
       <h1>Test add event</h1>
-      <button>Add event</button>
+      <form id="eventForm">
+        <input
+          type="text"
+          name="title"
+          placeholder="event name"
+          required
+        ></input>
+        <input
+          type="text"
+          name="description"
+          placeholder="event name"
+          required
+        ></input>
+        <input type="datetime-local" name="date" required></input>
+        <label>What grade?</label>
+        <select name="grade" id="grade" required>
+          <option value="9">9th</option>
+          <option value="10">10th</option>
+          <option value="11">11th</option>
+          <option value="12">12th</option>
+        </select>
+        <label>What grade?</label>
+        <select name="grade" id="grade" required>
+          <option value="9">9th</option>
+          <option value="10">10th</option>
+          <option value="11">11th</option>
+          <option value="12">12th</option>
+        </select>
+        <button type="submit">Add event</button>
+      </form>
     </div>
   );
 }
