@@ -28,6 +28,10 @@ const client = new MongoClient(uri, {
 connectDb(client);
 const db = client.db("itec2025");
 
+app.get("/", (req, res) => {
+  res.send("Hello itec2025!");
+});
+
 app.get("/test-protected", requireAuth(), async (req, res) => {
   const { userId } = getAuth(req);
 
@@ -41,7 +45,7 @@ app.post("/addUser", requireAuth(), async (req, res) => {
 
   const user = await clerkClient.users.getUser(userId);
   const users = db.collection("users");
-
+  console.log(user);
   const result = await users.insertOne({
     clerkId: userId,
     email: user.email,
