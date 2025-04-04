@@ -28,8 +28,7 @@ const pages = [
 
 const settings = [
   { label: "My Profile", href: "/profile" },
-  { label: "My Projects", href: "/profile/projects" },
-  { label: "My Friends", href: "/friends" },
+  { label: "My Events", href: "/profile/projects" },
 ];
 
 export default function Navbar(): React.ReactElement {
@@ -122,8 +121,9 @@ export default function Navbar(): React.ReactElement {
                   component={Link}
                   href={page.href}
                   onClick={handleCloseNavMenu}
+                  sx={{ color: "white" }}
                 >
-                  <Typography sx={{ textAlign: "center" }}>
+                  <Typography sx={{ textAlign: "center"}}>
                     {page.label}
                   </Typography>
                 </MenuItem>
@@ -204,12 +204,13 @@ export default function Navbar(): React.ReactElement {
                     onClick={handleCloseUserMenu}
                     href={setting.href}
                     component={Link}
+                    sx={{ color: "white" }}
                   >
                     {setting.label}
                   </MenuItem>
                 ))}
                 <Divider />
-                <MenuItem onClick={() => signOut()}>Logout</MenuItem>
+                <MenuItem  sx={{ color: "white" }} onClick={() => signOut()}>Logout</MenuItem>
               </Menu>
             </SignedIn>
             <SignedOut>

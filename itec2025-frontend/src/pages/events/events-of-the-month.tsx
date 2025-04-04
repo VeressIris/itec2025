@@ -86,7 +86,7 @@ export default function Page() {
     if (loading) {
         return (
             <Stack alignItems="center" spacing={2} sx={{ mt: 5 }}>
-                <Typography gutterBottom variant="h5" component="div" color="white">
+                <Typography gutterBottom variant="h5" component="div" color="black">
                     Events of the Month
                 </Typography>
 
@@ -143,7 +143,7 @@ export default function Page() {
 
     return (
         <Stack alignItems="center" spacing={2} sx={{ mt: 5 }}>
-            <Typography gutterBottom variant="h5" component="div" color="white">
+            <Typography gutterBottom variant="h5" component="div" color="black">
                 Events of the Month
             </Typography>
 
