@@ -54,6 +54,25 @@ app.post("/addUser", requireAuth(), async (req, res) => {
   return res.json({ result });
 });
 
+app.post("/addEvent", async (req, res) => {
+  const events = db.collection("events");
+  const { userId } = getAuth(req);
+
+  const user = await clerkClient.users.getUser(userId);
+  events.insertOne({
+    addedBy: user,
+    date: req.body.date,
+    joinedBy: [user.userId],
+    title: req.body.title,
+    description: req.body.description,
+    class: req.body.class,
+    classTags: req.body.classTags,
+    grade: req.body.grade,
+    personLimit: req.body.personLimit || 30,
+    //image maybe?
+  });
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
