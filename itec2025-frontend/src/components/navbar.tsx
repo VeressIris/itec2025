@@ -28,8 +28,8 @@ const pages = [
 
 const settings = [
   { label: "My Profile", href: "/profile" },
-  { label: "My Events", href: "/profile/projects" },
-];F
+  { label: "My Events", href: "/events/my-events" },
+]
 
 export default function Navbar(): React.ReactElement {
   const { signOut, redirectToSignIn, user } = useClerk();
