@@ -73,6 +73,14 @@ app.post("/addEvent", async (req, res) => {
   });
 });
 
+app.get("/getUser", async (req, res) => {
+  const users = db.collection("users");
+
+  const result = await users.findOne({ clerkId: req.query.userId });
+
+  return res.json({ result });
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
