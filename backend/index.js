@@ -11,7 +11,7 @@ import { MongoClient, ServerApiVersion } from "mongodb";
 import { connectDb } from "./utils.js";
 
 const app = express();
-const port = 3000;
+const port = 3001;
 
 app.use(cors());
 app.use(clerkMiddleware());
@@ -32,20 +32,12 @@ app.get("/", (req, res) => {
   res.send("Hello itec2025!");
 });
 
-app.get("/test-protected", requireAuth(), async (req, res) => {
-  const { userId } = getAuth(req);
-
-  const user = await clerkClient.users.getUser(userId);
-
-  return res.json({ user });
-});
-
 app.post("/addUser", requireAuth(), async (req, res) => {
   const { userId } = getAuth(req);
 
   const user = await clerkClient.users.getUser(userId);
   const users = db.collection("users");
-  console.log(user);
+
   const result = await users.insertOne({
     clerkId: userId,
     email: user.email,

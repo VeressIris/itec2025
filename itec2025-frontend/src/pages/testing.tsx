@@ -31,13 +31,15 @@ export default function Test() {
 
             const token = await getToken();
             console.log(token);
-            fetch("https://itec2025.onrender.com/addUser", {
+            console.log(data);
+            //https://itec2025.onrender.com/addUser
+            fetch("http://localhost:3001/addUser", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
               },
-              body: JSON.stringify({ data }),
+              body: JSON.stringify(data),
             }).then((response) => {
               if (response.ok) {
                 console.log("User added successfully");
