@@ -85,8 +85,8 @@ app.get("/getUser", async (req, res) => {
 
 app.get("/getEvents", async (req, res) => {
   const events = db.collection("events");
-
-  const result = await events.find({}).toArray();
+  const query = { date: { $gt: new Date() } };
+  const result = await events.find(query).toArray();
 
   return res.json({ result });
 });
