@@ -40,7 +40,7 @@ app.post("/addUser", requireAuth(), async (req, res) => {
 
   const result = await users.insertOne({
     clerkId: userId,
-    email: user.primaryEmailAddress,
+    email: user.primaryEmailAddress.emailAddress,
     firstName: user.firstName,
     lastName: user.lastName,
     grade: req.body.grade,
