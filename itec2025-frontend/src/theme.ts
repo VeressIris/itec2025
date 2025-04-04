@@ -15,7 +15,7 @@ const theme = createTheme({
             contrastText: "#fff",
         },
         background: {
-            default: "#0d1117",
+            default: "#f6f0fe",
             paper: "#0b1028",
         },
         mode: "dark",
