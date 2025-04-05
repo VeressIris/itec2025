@@ -6,25 +6,41 @@ import {
   Typography,
   Grid,
   Fab,
+  CircularProgress,
 } from "@mui/material";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import AddIcon from "@mui/icons-material/Add";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-
-const mockCurriculums = [
-  { id: 1, title: "CV - Mihai.pdf" },
-  { id: 2, title: "Project Experience.pdf" },
-  { id: 3, title: "Academic Resume.pdf" },
-];
+import { backendUrl } from "@/utils";
+import { CurriculumType } from "@/types";
 
 export default function MyCurriculum() {
-  const [curriculums, setCurriculums] = useState(mockCurriculums);
+  const [curriculums, setCurriculums] = useState<CurriculumType[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>("");
   const router = useRouter();
 
   const handleAdd = () => {
     router.push("/curricula/add-curriculum");
   };
+
+  useEffect(() => {
+    setLoading(true);
+    const fetchCurriculums = async () => {
+      try {
+        const response = await fetch(`${backendUrl}/getCurricula`);
+        const data = await response.json();
+        console.log(data);
+        setCurriculums(data.result);
+      } catch (error) {
+        console.error("Error fetching curriculums:", error);
+      }
+    };
+    setLoading(false);
+
+    fetchCurriculums();
+  }, []);
 
   return (
     <Box sx={{ p: 4 }}>
@@ -39,9 +55,15 @@ export default function MyCurriculum() {
         My Curricula
       </Typography>
 
+      {loading && (
+        <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+          <CircularProgress />
+        </Box>
+      )}
+
       <Grid container spacing={3}>
-        {curriculums.map((curriculum) => (
-          <Grid key={curriculum.id}>
+        {curriculums?.map((curriculum) => (
+          <Grid key={curriculum._id}>
             <Card>
               <CardContent sx={{ display: "flex", alignItems: "center" }}>
                 <PictureAsPdfIcon

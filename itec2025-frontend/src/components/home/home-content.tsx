@@ -32,14 +32,36 @@ export default function HomeContent() {
           }}
         >
           <Stack gap={2}>
-            <Typography variant="h4" fontWeight="bold" textAlign="center">
+            <Typography
+              fontWeight="bold"
+              textAlign="center"
+              sx={{
+                fontSize: {
+                  xs: "1.5rem",  
+                  sm: "1.75rem", 
+                  md: "2rem",    
+                  lg: "2.25rem", 
+                },
+              }}
+            >
               Welcome to BrainCircle!
             </Typography>
-            <Typography variant="h6" fontWeight="normal" lineHeight={1.6}>
-              Find fellow students, explore exciting events, and spark
-              innovative solutions with like-minded peers. Join a community of
-              future-driven students and shape the next generation of
-              collaboration!
+
+            <Typography
+              lineHeight={1.6}
+              sx={{
+                fontSize: {
+                  xs: "1rem",    
+                  sm: "1.05rem",
+                  md: "1.1rem",  
+                  lg: "1.2rem",  
+                },
+                textAlign: { xs: "center", md: "left" },
+              }}
+            >
+              Create study sessions, connect with others, and share knowledge in an interactive,
+              collaborative space—whether you're preparing for exams or exploring new topics. 
+              Learn smarter, together.
             </Typography>
           </Stack>
           <Image
