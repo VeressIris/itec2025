@@ -1,8 +1,8 @@
 
 "use client";
 import React, { useEffect, useState } from "react";
-import IndexSkeleton from "@/home/home-skeleton";
-import HomeContent from "@/home/home-content";
+import IndexSkeleton from "@/pages/home/home-skeleton";
+import HomeContent from "@/pages/home/home-content";
 
 export default function IndexPage() {
   const [loading, setLoading] = useState(true);
