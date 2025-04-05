@@ -1,4 +1,4 @@
-export const backendUrl = "https://itec2025.onrender.com/";
+export const backendUrl = "https://itec2025.onrender.com";
 
 export const urlToFile = async (url: string) => {
   console.log(url);
