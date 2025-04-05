@@ -175,7 +175,7 @@ export default function Page() {
 
             {event.imageUrl ? (
               <CardActionArea
-                onClick={() => router.push(`/events/${event.id}`)}
+                onClick={() => router.push(`/events/${event._id}`)}
               >
                 <CardMedia
                   component="img"
