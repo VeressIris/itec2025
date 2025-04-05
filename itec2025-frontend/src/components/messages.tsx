@@ -19,6 +19,7 @@ import {
   FiSend,
 } from "react-icons/fi";
 import { BsCircleFill } from "react-icons/bs";
+
 interface MessagesProps {
   chatRoomId: string;
   clientId: string;
@@ -26,45 +27,45 @@ interface MessagesProps {
 
 export function Messages({ chatRoomId, clientId }: MessagesProps) {
   const { getToken } = useAuth();
-
-  // Setup some state for the messages and a listener for chat messages using the useMessages hook
   const [message, setMessage] = useState("My first message with Ably Chat!");
   const [messages, setMessages] = useState<Message[]>([]);
+  const [participants, setParticipants] = useState<
+    { clerkId: string; firstName: string; lastName: string; imageUrl: string }[]
+  >([]);
+
   const { send } = useMessages({
     listener: (event) => {
-      console.log("received message", event.message);
       setMessages((prev) => [...prev, event.message]);
     },
   });
 
   useEffect(() => {
-    // Fetch messages when the component mounts
-    fetchMessages();
+    if (chatRoomId) {
+      fetchMessages();
+      fetchParticipants();
+    }
   }, [chatRoomId]);
 
   function fetchMessages() {
-    fetch(
-      `https://itec2025.onrender.com/getChatroomMessages?chatRoomId=${encodeURIComponent(
-        chatRoomId
-      )}`
-    )
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch messages");
-        }
-        return response.json();
-      })
+    fetch(`https://itec2025.onrender.com/getChatroomMessages?chatRoomId=${encodeURIComponent(chatRoomId)}`)
+      .then((res) => res.json())
       .then((data) => {
-        if (data && Array.isArray(data.result)) {
+        if (Array.isArray(data.result)) {
           setMessages(data.result);
-        } else {
-          setMessages([]); // If messages are missing or invalid, set to empty array
         }
       })
+      .catch((err) => console.error("Error fetching messages:", err));
+  }
 
-      .catch((error) => {
-        console.error("Error fetching messages:", error);
-      });
+  function fetchParticipants() {
+    fetch(`https://itec2025.onrender.com/getEventParticipants?chatRoomId=${chatRoomId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data.participants)) {
+          setParticipants(data.participants);
+        }
+      })
+      .catch((err) => console.error("Error fetching participants:", err));
   }
 
   async function sendMessage(text: string) {
@@ -77,67 +78,23 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
       },
       body: JSON.stringify({
         message: text,
-        chatRoomId: chatRoomId,
+        chatRoomId,
       }),
     })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to send message");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log("Message sent:", data);
-        setMessage("");
-      })
-      .catch((error) => {
-        console.error("Error sending message:", error);
-      });
+      .then((res) => res.json())
+      .then(() => setMessage(""))
+      .catch((err) => console.error("Error sending message:", err));
   }
 
-  // This function takes the message from the input field and sends it to the chat using the send function
-  // returned from the useMessages hook
   const handleSend = async () => {
     try {
       await send({ text: message });
       await sendMessage(message);
-      console.log("sent message", message);
-      setMessage("");
-    } catch (error) {
-      console.error("error sending message", error);
+    } catch (err) {
+      console.error("error sending message", err);
     }
   };
 
-  const contacts = [
-    {
-      id: 1,
-      name: "Project Team",
-      members: [
-        {
-          id: 1,
-          name: "John Doe",
-          image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e",
-        },
-        {
-          id: 2,
-          name: "Jane Smith",
-          image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330",
-        },
-        {
-          id: 3,
-          name: "Mike Johnson",
-          image: "https://images.unsplash.com/photo-1599566150163-29194dcaad36",
-        },
-        {
-          id: 4,
-          name: "Sarah Wilson",
-          image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb",
-        },
-      ],
-      lastMessage: "Mike: Welcome everyone!",
-      online: true,
-    },
-  ];
   const theme = createTheme({
     palette: {
       mode: "light",
@@ -145,25 +102,20 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
       background: { default: "#f5f5f5" },
     },
   });
-  const Container = styled(Box)({
-    display: "flex",
-    height: "100vh",
-  });
 
+  const Container = styled(Box)({ display: "flex", height: "100vh" });
   const Sidebar = styled(Box)({
     width: "300px",
     borderRight: "1px solid rgba(0, 0, 0, 0.12)",
     display: "flex",
     flexDirection: "column",
   });
-
   const MainChat = styled(Box)({
     display: "flex",
     flexDirection: "column",
     flexGrow: 1,
     position: "relative",
   });
-
   const ProfileSection = styled(Box)({
     padding: "20px",
     borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
@@ -171,12 +123,10 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
     alignItems: "center",
     gap: "10px",
   });
-
   const ContactList = styled(Box)({
     flex: 1,
     overflowY: "auto",
   });
-
   const Contact = styled(Box)({
     padding: "15px",
     display: "flex",
@@ -185,7 +135,6 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
     cursor: "pointer",
     "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
   });
-
   const ChatHeader = styled(Box)({
     padding: "15px",
     borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
@@ -193,7 +142,6 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
     alignItems: "center",
     justifyContent: "space-between",
   });
-
   const MessageArea = styled(Box)({
     flexGrow: 1,
     overflowY: "auto",
@@ -203,7 +151,6 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
     gap: "10px",
     marginBottom: "80px",
   });
-
   const InputSection = styled(Box)({
     position: "fixed",
     bottom: 0,
@@ -216,7 +163,6 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
     alignItems: "center",
     gap: "10px",
   });
-
   const MessageInput = styled("input")({
     flex: 1,
     padding: "10px",
@@ -224,7 +170,6 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
     borderRadius: "4px",
     outline: "none",
   });
-
   const IconButton = styled(Box)({
     cursor: "pointer",
     width: "40px",
@@ -238,14 +183,12 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
       backgroundColor: "rgba(0, 0, 0, 0.08)",
     },
   });
-
   const ProfileImage = styled("img")({
     width: "40px",
     height: "40px",
     borderRadius: "50%",
     objectFit: "cover",
   });
-
   const MessageBubble = styled(Box, {
     shouldForwardProp: (prop) => prop !== "isOwn",
   })(({ isOwn }: { isOwn: boolean }) => ({
@@ -257,6 +200,7 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
     alignSelf: isOwn ? "flex-end" : "flex-start",
     boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
   }));
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -273,49 +217,49 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
             </Box>
           </ProfileSection>
           <ContactList>
-            {contacts.map((contact) => (
-              <Contact key={contact.id}>
-                <AvatarGroup max={3}>
-                  {contact.members.map((m) => (
-                    <Avatar key={m.id} src={m.image} />
-                  ))}
-                </AvatarGroup>
-                <Box flex={1}>
-                  <Box fontWeight="bold">{contact.name}</Box>
-                  <Box fontSize="0.875rem" color="text.secondary">
-                    {contact.lastMessage}
-                  </Box>
+            <Contact>
+              <AvatarGroup max={4}>
+                {participants.map((p) => (
+                  <Avatar
+                    key={p.clerkId}
+                    src={p.imageUrl}
+                    title={`${p.firstName} ${p.lastName}`}
+                  />
+                ))}
+              </AvatarGroup>
+              <Box flex={1}>
+                <Box fontWeight="bold">Event Participants</Box>
+                <Box fontSize="0.875rem" color="text.secondary">
+                  {participants.length} joined
                 </Box>
-              </Contact>
-            ))}
+              </Box>
+            </Contact>
           </ContactList>
         </Sidebar>
 
         <MainChat>
           <ChatHeader>
             <Box display="flex" alignItems="center" gap={2}>
-              <AvatarGroup max={3}>
-                {contacts[0].members.map((m) => (
-                  <Avatar key={m.id} src={m.image} />
+              <AvatarGroup max={4}>
+                {participants.map((p) => (
+                  <Avatar
+                    key={p.clerkId}
+                    src={p.imageUrl}
+                    title={`${p.firstName} ${p.lastName}`}
+                  />
                 ))}
               </AvatarGroup>
               <Box>
-                <Box fontWeight="bold">{contacts[0].name}</Box>
+                <Box fontWeight="bold">Group Chat</Box>
                 <Box fontSize="0.875rem" color="text.secondary">
-                  {contacts[0].members.length} members
+                  {participants.length} members
                 </Box>
               </Box>
             </Box>
             <Box display="flex" gap={2}>
-              <IconButton>
-                <FiVideo />
-              </IconButton>
-              <IconButton>
-                <FiPhone />
-              </IconButton>
-              <IconButton>
-                <FiMoreVertical />
-              </IconButton>
+              <IconButton><FiVideo /></IconButton>
+              <IconButton><FiPhone /></IconButton>
+              <IconButton><FiMoreVertical /></IconButton>
             </Box>
           </ChatHeader>
 
@@ -325,9 +269,7 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
                 key={index}
                 display="flex"
                 flexDirection="column"
-                alignItems={
-                  msg.clientId === clientId ? "flex-end" : "flex-start"
-                }
+                alignItems={msg.clientId === clientId ? "flex-end" : "flex-start"}
               >
                 <Box fontSize="0.75rem" color="text.secondary" mb={0.5}>
                   {msg.clientId === clientId ? "You" : msg.clientId}
@@ -340,21 +282,15 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
           </MessageArea>
 
           <InputSection>
-            <IconButton>
-              <FiPaperclip />
-            </IconButton>
+            <IconButton><FiPaperclip /></IconButton>
             <MessageInput
               placeholder="Type a message..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
             />
-            <IconButton>
-              <FiSmile />
-            </IconButton>
-            <IconButton onClick={handleSend}>
-              <FiSend />
-            </IconButton>
+            <IconButton><FiSmile /></IconButton>
+            <IconButton onClick={handleSend}><FiSend /></IconButton>
           </InputSection>
         </MainChat>
       </Container>

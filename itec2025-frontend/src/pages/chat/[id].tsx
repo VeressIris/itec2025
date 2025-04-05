@@ -14,12 +14,9 @@ import { Messages } from "@/components/messages";
 
 async function initAblyClient(authToken: string) {
   try {
-    const response = await axios.get(
-      "https://itec2025.onrender.com/socket/auth",
-      {
-        headers: { Authorization: `Bearer ${authToken}` },
-      }
-    );
+    const response = await axios.get("https://itec2025.onrender.com/socket/auth", {
+      headers: { Authorization: `Bearer ${authToken}` },
+    });
 
     return new Ably.Realtime({
       clientId: response.data.userId,
@@ -50,16 +47,28 @@ export default function App() {
     });
   }, [getToken]);
 
+  // OPTIONAL: Fetch event participants using chatRoomId (id)
+  useEffect(() => {
+    if (id) {
+      console.log(id)
+      axios
+        .get(`https://itec2025.onrender.com/getChatMembers?chatRoomId=${id}`)
+
+
+        .then((res) => {
+          console.log("Participants:", res.data.members);
+        })
+        .catch((err) => {
+          console.error("Error fetching participants:", err);
+        });
+    }
+  }, [id]);
+
   if (!ablyClient || !id || !clientId) return <div>Loading chat...</div>;
 
   return (
     <ChatClientProvider client={new ChatClient(ablyClient)}>
       <ChatRoomProvider id={id as string} options={AllFeaturesEnabled}>
-        {/* <ChatUI
-          roomId={id as string}
-          clientId={clientId}
-          ablyClient={ablyClient}
-        /> */}
         <Messages chatRoomId={Array.isArray(id) ? id[0] : id} clientId={clientId} />
       </ChatRoomProvider>
     </ChatClientProvider>

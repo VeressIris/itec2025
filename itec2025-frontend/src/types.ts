@@ -7,7 +7,16 @@ interface EventType {
   classTags: string[];
   grade: string;
   _id: string;
+  chatRoom: string;
+  joinedBy: string[];
+  addedBy: {
+    clerkId: string;
+    firstName: string;
+    lastName: string;
+    imageUrl: string;
+  }; 
 }
+
 
 interface CurriculumType {
   title: string;
