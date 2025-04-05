@@ -138,6 +138,18 @@ app.get("/getEvents", async (req, res) => {
   return res.json({ result });
 });
 
+app.get("/getEventParticipants", async (req, res) => {
+  const events = db.collection("events");
+  const event = await events.findOne({ _id: new ObjectId(req.query.eventId) });
+  const users = db.collection("users");
+
+  const participants = await users
+    .find({ clerkId: { $in: event.joinedBy } })
+    .toArray();
+
+  return res.json({ participants });
+});
+
 app.patch("/joinEvent", requireAuth(), async (req, res) => {
   const events = db.collection("events");
 
