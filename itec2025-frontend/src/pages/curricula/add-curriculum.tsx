@@ -16,8 +16,8 @@ export default function AddCurriculum() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState(null);
   const [summary, setSummary] = useState("");
+  const [fileName, setFileName] = useState("");
   const [file, setFile] = useState<File | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,7 +46,10 @@ export default function AddCurriculum() {
       const data = await res.json();
 
       if (res.ok) {
-        setSummary(data.summary);
+        setSummary(JSON.parse(data.summary).summary);
+        setFileName(JSON.parse(data.summary).title);
+        setSuccess(true);
+        setError("");
       } else {
         setError(data.error || "Something went wrong");
       }
@@ -98,6 +101,9 @@ export default function AddCurriculum() {
               <Box mt={4}>
                 <Typography variant="h6" gutterBottom>
                   Summary:
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  {fileName}
                 </Typography>
                 <TextField
                   value={summary}
