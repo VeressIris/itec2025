@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useClerk } from "@clerk/nextjs";
 import { backendUrl, urlToFile } from "@/utils";
-import ProfileSkeleton from "./profile-content";
+import ProfileSkeleton from "../../components/profile/profile-content";
 import ProfileContent from "./profile-skeleton";
 import { SelectChangeEvent } from "@mui/material";
 
