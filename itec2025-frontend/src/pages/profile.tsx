@@ -119,8 +119,7 @@ export default function ProfilePage(): React.ReactElement {
   async function updateProfile() {
     try {
       const token = await getToken();
-      // const res = await fetch(`${backendUrl}/updateUser`, {
-      const res = await fetch(`http://localhost:3001/updateUser`, {
+      const res = await fetch(`${backendUrl}/updateUser`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
