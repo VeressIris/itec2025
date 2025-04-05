@@ -5,7 +5,7 @@ import {
   ChatClientProvider,
   ChatRoomProvider,
 } from "@ably/chat";
-import { Messages } from "@/components/messages";
+import { TestMessages } from "@/components/test-messages";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -79,7 +79,7 @@ function App() {
     <ChatClientProvider client={chatClient}>
       <ChatRoomProvider id={id} options={AllFeaturesEnabled}>
         <div>
-          <Messages />
+          <TestMessages />
         </div>
       </ChatRoomProvider>
     </ChatClientProvider>
