@@ -22,10 +22,11 @@ export default function Event() {
   const [eventDetails, setEventDetails] = useState<EventType | null>(null);
   const [loading, setLoading] = useState(false);
   const [attending, setAttending] = useState(false);
+  const [isCreator, setIsCreator] = useState(false);
 
   const generateGoogleCalendarLink = (event: EventType) => {
-    const start = dayjs(event.date).format("YYYYMMDDT");
-    const end = dayjs(event.date).add(24, "hour").format("YYYYMMDDT");
+    const start = dayjs(event.date).format("YYYYMMDDT000000Z");
+    const end = dayjs(event.date).add(1, "day").format("YYYYMMDDT000000Z");
 
     const url = new URL("https://www.google.com/calendar/render");
     url.searchParams.set("action", "TEMPLATE");
@@ -41,25 +42,76 @@ export default function Event() {
   const handleAttend = async () => {
     setLoading(true);
     const token = await getToken();
-    await fetch(`${backendUrl}/joinEvent`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    setAttending(!attending);
-    setLoading(false);
+    const id = router.query.id as string;
+
+    try {
+      await fetch(`${backendUrl}/leaveEvent?eventId=${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      router.push("/events/my-events");
+    } catch (error) {
+      console.error("Error while leaving event:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleJoin = async () => {
+    setLoading(true);
+    const token = await getToken();
+    const id = router.query.id as string;
+
+    try {
+      await fetch(`${backendUrl}/joinEvent`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ eventId: id }),
+      });
+      setAttending(true);
+    } catch (error) {
+      console.error("Error while joining event:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    const confirmed = confirm("Are you sure you want to delete this event?");
+    if (!confirmed) return;
+
+    setLoading(true);
+    const token = await getToken();
+    const id = router.query.id as string;
+
+    try {
+      await fetch(`${backendUrl}/deleteEvent?eventId=${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      router.push("/events/my-events");
+    } catch (error) {
+      console.error("Error while deleting event:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    if (!router.query.id) return;
-    if (!user) return;
+    if (!router.query.id || !user) return;
 
     const fetchEventDetails = async () => {
       setLoading(true);
       const id = router.query.id as string;
-      if (!id) return;
+
       try {
         const response = await fetch(`${backendUrl}/getEvent?eventId=${id}`);
         if (!response.ok) {
@@ -67,8 +119,8 @@ export default function Event() {
         }
         const data = await response.json();
         setEventDetails(data.result);
-        console.log(data.result.joinedBy.includes(user?.id));
-        setAttending(data.result.joinedBy.includes(user?.id));
+        setAttending(data.result.joinedBy.includes(user.id));
+        setIsCreator(data.result.addedBy.clerkId === user.id);
       } catch (error) {
         console.error(error);
       } finally {
@@ -95,13 +147,13 @@ export default function Event() {
             <Card sx={{ maxWidth: 600, width: "100%", p: 3 }}>
               <CardContent>
                 <Typography variant="h4" gutterBottom>
-                  {eventDetails?.title}
+                  {eventDetails.title}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
-                  {eventDetails?.description}
+                  {eventDetails.description}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" gutterBottom>
-                  🕒 {dayjs(eventDetails?.date).format("dddd, MMMM D YYYY")}
+                  🕒 {dayjs(eventDetails.date).format("dddd, MMMM D YYYY")}
                 </Typography>
 
                 <Stack direction="row" spacing={2} mt={4}>
@@ -109,7 +161,7 @@ export default function Event() {
                     <Button
                       variant="contained"
                       color="primary"
-                      onClick={handleAttend}
+                      onClick={handleJoin}
                     >
                       Attend Event
                     </Button>
@@ -117,18 +169,29 @@ export default function Event() {
 
                   {attending && (
                     <>
-                      <Button
-                        variant="contained"
-                        color="secondary"
-                        onClick={handleAttend}
-                      >
-                        Unattend Event
-                      </Button>
+                      {isCreator ? (
+                        <Button
+                          variant="contained"
+                          color="error"
+                          onClick={handleDelete}
+                        >
+                          Delete Event
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="contained"
+                          color="secondary"
+                          onClick={handleAttend}
+                        >
+                          Leave Event
+                        </Button>
+                      )}
+
                       <Button
                         variant="outlined"
                         color="secondary"
                         component="a"
-                        href={generateGoogleCalendarLink(eventDetails!)}
+                        href={generateGoogleCalendarLink(eventDetails)}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
