@@ -38,11 +38,10 @@
 //   },
 // });
 
-// const Container = styled(Box)(({ theme }) => ({
-//   display: "flex",
-//   height: "100vh",
-//   backgroundColor: theme.palette.background.default,
-// }));
+const Container = styled(Box)({
+  display: "flex",
+  height: "100vh",
+});
 
 // const Sidebar = styled(Box)({
 //   width: "300px",
@@ -51,11 +50,12 @@
 //   flexDirection: "column",
 // });
 
-// const MainChat = styled(Box)({
-//   flex: 1,
-//   display: "flex",
-//   flexDirection: "column",
-// });
+const MainChat = styled(Box)({
+  display: "flex",
+  flexDirection: "column",
+  flexGrow: 1,
+  position: "relative",
+});
 
 // const ProfileSection = styled(Box)({
 //   padding: "20px",
@@ -87,22 +87,28 @@
 //   justifyContent: "space-between",
 // });
 
-// const MessageArea = styled(Box)({
-//   flex: 1,
-//   padding: "20px",
-//   overflowY: "auto",
-//   display: "flex",
-//   flexDirection: "column",
-//   gap: "10px",
-// });
+const MessageArea = styled(Box)({
+  flexGrow: 1,
+  overflowY: "auto",
+  padding: "20px",
+  display: "flex",
+  flexDirection: "column",
+  gap: "10px",
+  marginBottom: "80px", // Reserve space for fixed input bar
+});
 
-// const InputSection = styled(Box)({
-//   padding: "20px",
-//   borderTop: "1px solid rgba(0, 0, 0, 0.12)",
-//   display: "flex",
-//   alignItems: "center",
-//   gap: "10px",
-// });
+const InputSection = styled(Box)({
+  position: "fixed",
+  bottom: 0,
+  left: 300, // Width of Sidebar
+  right: 0,
+  backgroundColor: "#f5f5f5",
+  padding: "20px",
+  borderTop: "1px solid rgba(0, 0, 0, 0.12)",
+  display: "flex",
+  alignItems: "center",
+  gap: "10px",
+});
 
 // const MessageInput = styled("input")({
 //   flex: 1,
@@ -126,24 +132,23 @@
 //   objectFit: "cover",
 // });
 
-// const MessageBubble = styled(Box, {
-//   shouldForwardProp: (prop) => prop !== "isOwn",
-// })(({ isOwn }: { isOwn: boolean }) => ({
-//   maxWidth: "70%",
-//   padding: "10px",
+const MessageBubble = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "isOwn",
+})(({ isOwn }: { isOwn: boolean }) => ({
+  maxWidth: "70%",
+  padding: "10px",
+  borderRadius: "12px",
+  backgroundColor: isOwn ? "#1976d2" : "#fff",
+  color: isOwn ? "#fff" : "#000",
+  alignSelf: isOwn ? "flex-end" : "flex-start",
+  boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
+}));
 
-//   borderRadius: "12px",
-//   backgroundColor: isOwn ? "#1976d2" : "#fff",
-//   color: isOwn ? "#fff" : "#000",
-//   alignSelf: isOwn ? "flex-end" : "flex-start",
-//   boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
-// }));
-
-// async function initAblyClient(authToken: string) {
-//   try {
-//     const response = await axios.get("http://localhost:3001/socket/auth", {
-//       headers: { Authorization: `Bearer ${authToken}` },
-//     });
+async function initAblyClient(authToken: string) {
+  try {
+    const response = await axios.get("https://itec2025.onrender.com/socket/auth", {
+      headers: { Authorization: `Bearer ${authToken}` },
+    });
 
 //     return new Ably.Realtime({
 //       clientId: response.data.userId,
@@ -155,48 +160,49 @@
 //   }
 // }
 
-// function ChatUI({ roomId, clientId }: { roomId: string; clientId: string }) {
-//   const [messages, setMessages] = useState<any[]>([]);
-//   const [text, setText] = useState("");
-//   const [channel, setChannel] = useState<Ably.Types.RealtimeChannelCallbacks | null>(null);
+function ChatUI({ roomId, clientId, ablyClient }: { roomId: string; clientId: string; ablyClient: Ably.Realtime }) {
+  const [messages, setMessages] = useState<any[]>([]);
+  const [text, setText] = useState("");
+  const [channel, setChannel] = useState<Ably.Types.RealtimeChannelCallbacks | null>(null);
 
-//   useEffect(() => {
-//     if (!roomId || !clientId) return;
+  useEffect(() => {
+    if (!roomId || !clientId || !ablyClient) return;
 
-//     const ably = new Ably.Realtime("oUmUXw.lX0mkA:AdvoJuOfsDia7Mo3m5t13Zd9Iuewfy0AAZ5v0M8pDP4");
-//     const ch = ably.channels.get(roomId);
-//     setChannel(ch);
+    const ch = ablyClient.channels.get(roomId);
+    setChannel(ch);
 
-//     ch.subscribe((msg) => {
-//       setMessages((prev) => [...prev, msg]);
-//     });
+    const onMessage = (msg: Ably.Types.Message) => {
+      setMessages((prev) => [...prev, msg]);
+    };
 
-//     return () => {
-//       ch.unsubscribe();
-//       ably.close();
-//     };
-//   }, [roomId, clientId]);
+    ch.subscribe("message", onMessage);
 
-//   const sendMessage = () => {
-//     if (text.trim() && channel) {
-//       channel.publish("message", { text, clientId });
-//       setMessages((prev) => [...prev, { data: { text }, clientId }]);
-//       setText("");
-//     }
-//   };
+    return () => {
+      ch.unsubscribe("message", onMessage);
+    };
+  }, [roomId, clientId, ablyClient]);
 
-//   const contacts = [
-//     {
-//       id: 1,
-//       name: "Project Team",
-//       members: [
-//         { id: 1, name: "John Doe", image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e" },
-//         { id: 2, name: "Jane Smith", image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330" },
-//       ],
-//       lastMessage: "Mike: Welcome everyone!",
-//       online: true,
-//     },
-//   ];
+  const sendMessage = () => {
+    if (text.trim() && channel) {
+      channel.publish("message", { text, clientId });
+      setText("");
+    }
+  };
+
+  const contacts = [
+    {
+      id: 1,
+      name: "Project Team",
+      members: [
+        { id: 1, name: "John Doe", image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e" },
+        { id: 2, name: "Jane Smith", image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330" },
+        { id: 3, name: "Mike Johnson", image: "https://images.unsplash.com/photo-1599566150163-29194dcaad36" },
+        { id: 4, name: "Sarah Wilson", image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb" }
+      ],
+      lastMessage: "Mike: Welcome everyone!",
+      online: true,
+    },
+  ];
 
 //   return (
 //     <ThemeProvider theme={theme}>
@@ -254,23 +260,23 @@
 //             </Box>
 //           </ChatHeader>
 
-//           <MessageArea>
-//             {messages.map((msg, index) => (
-//               <Box
-//                 key={index}
-//                 display="flex"
-//                 flexDirection="column"
-//                 alignItems={msg.clientId === clientId ? "flex-end" : "flex-start"}
-//               >
-//                 <Box fontSize="0.75rem" color="text.secondary" mb={0.5}>
-//                   {msg.clientId}
-//                 </Box>
-//                 <MessageBubble isOwn={msg.clientId === clientId}>
-//                   {msg.data.text}
-//                 </MessageBubble>
-//               </Box>
-//             ))}
-//           </MessageArea>
+          <MessageArea>
+            {messages.map((msg, index) => (
+              <Box
+                key={index}
+                display="flex"
+                flexDirection="column"
+                alignItems={msg.clientId === clientId ? "flex-end" : "flex-start"}
+              >
+                <Box fontSize="0.75rem" color="text.secondary" mb={0.5}>
+                  {msg.clientId === clientId ? "You" : msg.clientId}
+                </Box>
+                <MessageBubble isOwn={msg.clientId === clientId}>
+                  {msg.data.text}
+                </MessageBubble>
+              </Box>
+            ))}
+          </MessageArea>
 
 //           <InputSection>
 //             <IconButton><FiPaperclip /></IconButton>
@@ -310,11 +316,11 @@
 
 //   if (!ablyClient || !id || !clientId) return <div>Loading chat...</div>;
 
-//   return (
-//     <ChatClientProvider client={new ChatClient(ablyClient)}>
-//       <ChatRoomProvider id={id as string} options={AllFeaturesEnabled}>
-//         <ChatUI roomId={id as string} clientId={clientId} />
-//       </ChatRoomProvider>
-//     </ChatClientProvider>
-//   );
-// }
+  return (
+    <ChatClientProvider client={new ChatClient(ablyClient)}>
+      <ChatRoomProvider id={id as string} options={AllFeaturesEnabled}>
+        <ChatUI roomId={id as string} clientId={clientId} ablyClient={ablyClient} />
+      </ChatRoomProvider>
+    </ChatClientProvider>
+  );
+}
