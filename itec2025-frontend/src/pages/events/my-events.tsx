@@ -67,6 +67,30 @@ export default function MyEvents() {
       selectedDate?.format("MMMM D, YYYY")
   );
 
+  if (loading)
+    return (
+      <Stack gap={4} direction="row" justifyContent="center" p={4}>
+        <Stack spacing={3}>
+          <Skeleton variant="rectangular" width={312} height={320} sx={{ borderRadius: 2 }} />
+          <Stack spacing={1}>
+            <Skeleton variant="text" width={220} height={28} />
+            {[...Array(3)].map((_, i) => (
+              <Skeleton
+                key={i}
+                variant="rectangular"
+                width={300}
+                height={48}
+                sx={{ borderRadius: 1 }}
+              />
+            ))}
+          </Stack>
+        </Stack>
+        <Stack spacing={2} alignItems="center">
+          <Skeleton variant="rectangular" width={120} height={40} />
+        </Stack>
+      </Stack>
+    );
+
   return (
     <Stack
       direction="row"
@@ -78,33 +102,11 @@ export default function MyEvents() {
       {error && <Alert severity="error">{error}</Alert>}
 
       <Stack spacing={2}>
-        {loading ? (
-          <Skeleton
-            variant="rectangular"
-            width={312}
-            height={320}
-            sx={{ borderRadius: 2 }}
-          />
-        ) : (
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DateCalendar value={selectedDate} onChange={setSelectedDate} />
-          </LocalizationProvider>
-        )}
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DateCalendar value={selectedDate} onChange={setSelectedDate} />
+        </LocalizationProvider>
 
-        {loading ? (
-          <Stack spacing={2}>
-            <Skeleton variant="text" width={220} height={28} />
-            {[...Array(3)].map((_, i) => (
-              <Skeleton
-                key={i}
-                variant="rectangular"
-                width={300}
-                height={50}
-                sx={{ borderRadius: 1 }}
-              />
-            ))}
-          </Stack>
-        ) : filteredEvents.length > 0 ? (
+        {filteredEvents.length > 0 ? (
           <Stack spacing={1}>
             <Typography variant="h6">
               Events on {selectedDate?.format("MMMM D, YYYY")}:
@@ -134,15 +136,11 @@ export default function MyEvents() {
       </Stack>
 
       <Stack>
-        {loading ? (
-          <Skeleton variant="rectangular" width={120} height={40} />
-        ) : (
-          <Typography variant="h6" color="text.primary">
-            <Button variant="contained" color="primary" href="add-event">
-              Add event
-            </Button>
-          </Typography>
-        )}
+        <Typography variant="h6" color="text.primary">
+          <Button variant="contained" color="primary" href="add-event">
+            Add event
+          </Button>
+        </Typography>
       </Stack>
     </Stack>
   );
