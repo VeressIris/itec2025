@@ -9,6 +9,7 @@ import {
 import "dotenv/config";
 import { MongoClient, ServerApiVersion, ObjectId } from "mongodb";
 import { connectDb, createChatRoom } from "./utils.js";
+import { put } from "@vercel/blob";
 
 const app = express();
 const port = 3001;
@@ -229,6 +230,14 @@ app.patch("/leaveEvent", requireAuth(), async (req, res) => {
   );
 
   return res.json({ message: "Left event" });
+});
+
+app.post("/uploadFile", express.raw({ type: "*/*" }), async (req, res) => {
+  const { fileName } = req.query;
+  const blob = await put(fileName, req.body, {
+    access: "public",
+  });
+  return res.json({ blob });
 });
 
 // Chatroom features
