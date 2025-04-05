@@ -1,4 +1,5 @@
 import { backendUrl } from "@/utils";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import {
   Box,
@@ -34,6 +35,7 @@ const gradeOptions = ["9th", "10th", "11th", "12th"];
 
 export default function AddEvent() {
   const { getToken } = useAuth();
+  const router = useRouter();
   const [form, setForm] = useState<{
     title: string;
     description: string;
@@ -79,6 +81,7 @@ export default function AddEvent() {
       setSuccess(true);
       console.log("success");
       setError(null);
+      router.push("/events/my-events");
     } catch (err) {
       console.error(err);
       setError("Something went wrong.");
