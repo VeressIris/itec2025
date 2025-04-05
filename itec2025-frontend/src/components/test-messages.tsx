@@ -1,7 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Message, useMessages } from "@ably/chat";
+import { useAuth } from "@clerk/nextjs";
 
-export function TestMessages() {
+export function TestMessages({ chatRoomId }) {
+  const { getToken } = useAuth();
+
   // Setup some state for the messages and a listener for chat messages using the useMessages hook
   const [message, setMessage] = useState("My first message with Ably Chat!");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -12,11 +15,70 @@ export function TestMessages() {
     },
   });
 
+  useEffect(() => {
+    // Fetch messages when the component mounts
+    fetchMessages();
+  }, []);
+
+  function fetchMessages() {
+    fetch(
+      `https://itec2025.onrender.com/getChatroomMessages?chatRoomId=${encodeURIComponent(
+        chatRoomId
+      )}`
+    )
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch messages");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (data.messages && data.messages.length === 0) {
+          setMessages([]);
+        } else {
+          setMessages(data.messages);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching messages:", error);
+      });
+  }
+
+  async function sendMessage(text) {
+    const token = await getToken();
+    // fetch("https://itec2025.onrender.com/addMessage", {
+    fetch("http://localhost:3001/addMessage", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        message: text,
+        chatRoomId: chatRoomId,
+      }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to send message");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Message sent:", data);
+        setMessage("");
+      })
+      .catch((error) => {
+        console.error("Error sending message:", error);
+      });
+  }
+
   // This function takes the message from the input field and sends it to the chat using the send function
   // returned from the useMessages hook
   const handleSend = async () => {
     try {
       await send({ text: message });
+      await sendMessage(message);
       console.log("sent message", message);
       setMessage("");
     } catch (error) {

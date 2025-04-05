@@ -79,7 +79,7 @@ function App() {
     <ChatClientProvider client={chatClient}>
       <ChatRoomProvider id={id} options={AllFeaturesEnabled}>
         <div>
-          <TestMessages />
+          <TestMessages chatRoomId={id}/>
         </div>
       </ChatRoomProvider>
     </ChatClientProvider>
