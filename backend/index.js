@@ -192,6 +192,11 @@ app.patch("/leaveEvent", requireAuth(), async (req, res) => {
   return res.json({ message: "Left event" });
 });
 
+app.get("/socket/auth", requireAuth(), (req, res) => {
+  const { userId } = getAuth(req);
+  return res.json({ userId });
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });

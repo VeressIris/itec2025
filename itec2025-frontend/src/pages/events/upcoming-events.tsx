@@ -13,7 +13,7 @@ import {
     Skeleton,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
-import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 
 interface Event {
     id: string;
@@ -34,7 +34,7 @@ const hardcodedEvents: Event[] = [
         id: "1",
         title: "AI Hackathon",
         description: "Join us for a weekend of innovation and collaboration in AI.",
-        images: ["/images/event-ai.jpg"],
+        images:[],
         tags: ["AI", "Hackathon", "Tech"],
         likeCount: 45,
         organizer: {
@@ -47,7 +47,7 @@ const hardcodedEvents: Event[] = [
         id: "2",
         title: "Open Source Day",
         description: "A day dedicated to contributing to open source and learning git.",
-        images: ["/images/event-oss.jpg"],
+        images:[],
         tags: ["Git", "Open Source", "Community"],
         likeCount: 32,
         organizer: {
@@ -60,7 +60,7 @@ const hardcodedEvents: Event[] = [
         id: "3",
         title: "Tech Talk: Web3",
         description: "Explore the future of the decentralized web with top speakers.",
-        images: ["/images/event-web3.jpg"],
+        images:[],
         tags: ["Web3", "Blockchain", "Talk"],
         likeCount: 19,
         organizer: {
@@ -199,7 +199,7 @@ export default function Page() {
                                     component="img"
                                     height="auto"
                                     sx={{ maxHeight: "45vh" }}
-                                    image={event.images?.[0] || "/images/default-project.png"}
+                                    image={event.images?.[0] || "/images/default-project.pn"}
                                     alt="Event Image"
                                     
                     
@@ -225,9 +225,9 @@ export default function Page() {
                             </Stack>
 
                             <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 1 }}>
-                                <ThumbUpIcon sx={{ color: "white", fontSize: 18 }} />
+                                <SupervisorAccountIcon sx={{ color: "white", fontSize: 18 }} />
                                 <Typography variant="body2" color="white">
-                                    {event.likeCount} {event.likeCount === 1 ? "Like" : "Likes"}
+                                    {event.likeCount} {"People"}
                                 </Typography>
                             </Stack>
                         </CardContent>
