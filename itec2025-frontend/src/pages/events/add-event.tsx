@@ -277,11 +277,17 @@ export default function AddEvent() {
                   type="submit"
                   variant="contained"
                   sx={{ mt: 2, minWidth: 120 }}
+                  disabled={loading}
                 >
-                  Save
+                  {loading ? "Saving..." : "Save"}
                 </Button>
 
+                {loading && (
+                  <CircularProgress size={24} sx={{ mr: 2, mt: 3 }} />
+                )}
+
                 <Button
+                  type="submit"
                   variant="outlined"
                   href="/events/my-events"
                   sx={{ mt: 2, minWidth: 140, ml: 1 }}
