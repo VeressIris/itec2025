@@ -19,7 +19,12 @@ import {
   FiSend,
 } from "react-icons/fi";
 import { BsCircleFill } from "react-icons/bs";
-export function Messages({ chatRoomId, clientId }) {
+interface MessagesProps {
+  chatRoomId: string;
+  clientId: string;
+}
+
+export function Messages({ chatRoomId, clientId }: MessagesProps) {
   const { getToken } = useAuth();
 
   // Setup some state for the messages and a listener for chat messages using the useMessages hook
@@ -62,7 +67,7 @@ export function Messages({ chatRoomId, clientId }) {
       });
   }
 
-  async function sendMessage(text) {
+  async function sendMessage(text: string) {
     const token = await getToken();
     fetch("https://itec2025.onrender.com/addMessage", {
       method: "POST",

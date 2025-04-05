@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "@clerk/nextjs";
 
-async function initAblyClient(authToken) {
+async function initAblyClient(authToken: string) {
   try {
     const response = await axios.get(
       "https://itec2025.onrender.com/socket/auth",
@@ -79,7 +79,7 @@ function App() {
     <ChatClientProvider client={chatClient}>
       <ChatRoomProvider id={id} options={AllFeaturesEnabled}>
         <div>
-          <TestMessages chatRoomId={id}/>
+          <TestMessages chatRoomId={typeof id === "string" ? id : ""}/>
         </div>
       </ChatRoomProvider>
     </ChatClientProvider>
