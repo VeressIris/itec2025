@@ -138,16 +138,18 @@ app.get("/getEvents", async (req, res) => {
   return res.json({ result });
 });
 
-app.get("/getEventParticipants", async (req, res) => {
-  const events = db.collection("events");
-  const event = await events.findOne({ _id: new ObjectId(req.query.eventId) });
+app.get("/getChatMembers", async (req, res) => {
+  const chatRooms = db.collection("chatRooms");
+  const chatRoom = await chatRooms.findOne({
+    _id: new ObjectId(req.query.chatRoomId),
+  });
   const users = db.collection("users");
 
-  const participants = await users
-    .find({ clerkId: { $in: event.joinedBy } })
+  const members = await users
+    .find({ clerkId: { $in: chatRoom.members } })
     .toArray();
 
-  return res.json({ participants });
+  return res.json({ members });
 });
 
 app.patch("/joinEvent", requireAuth(), async (req, res) => {
@@ -164,6 +166,15 @@ app.patch("/joinEvent", requireAuth(), async (req, res) => {
   await events.updateOne(
     { _id: new ObjectId(eventId) },
     { $addToSet: { joinedBy: userId } }
+  );
+  const chatRooms = db.collection("chatRooms");
+  await chatRooms.updateOne(
+    { _id: event.chatRoom },
+    {
+      $addToSet: {
+        members: userId,
+      },
+    }
   );
 
   return res.json({ message: "Joined event" });
