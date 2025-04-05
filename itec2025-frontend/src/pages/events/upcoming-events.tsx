@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import { useRouter } from "next/navigation";
 import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import { backendUrl } from "@/utils";
 import { Box } from "@mui/system";
-import { text } from "stream/consumers";
+import { useAuth } from "@clerk/nextjs";
 
 interface Event {
   _id: string;
@@ -66,31 +66,35 @@ export default function Page() {
     fetchEvents();
   }, []);
 
-  const addEvent = async (eventId: string) => {
+  const { getToken } = useAuth();
+  const joinEvent = async (eventId: string) => {
+    const token = await getToken();
+
     try {
-      const response = await fetch(`${backendUrl}/joinEvent?eventId=${eventId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
-  
+      const response = await fetch(
+        `${backendUrl}/joinEvent?eventId=${eventId}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       const data = await response.json();
-  
+      console.log(data);
       if (!response.ok) {
-        alert(data.message || "Failed to join event");
-        return;
+        throw new Error("couldn't join");
       }
-  
-      alert(data.message || "Joined successfully");
-      router.refresh(); 
+
+      console.log("joined event");
+      router.refresh();
     } catch (err) {
       console.error(err);
       alert("Something went wrong.");
     }
   };
-  
 
   if (loading) {
     return (
@@ -169,7 +173,7 @@ export default function Page() {
               width: { xs: "80%", sm: "90%", md: "90%", lg: 600 },
               borderRadius: 1.5,
               backgroundColor: "#131d4c",
-              cursor:"pointer"
+              cursor: "pointer",
             }}
           >
             <CardContent sx={{ padding: "8px 16px", minHeight: 60 }}>
@@ -231,7 +235,6 @@ export default function Page() {
                     variant="outlined"
                     sx={{ color: "white" }}
                   />
-
                 ))}
               </Stack>
 
@@ -242,12 +245,18 @@ export default function Page() {
                 sx={{ mt: 1 }}
               >
                 <Stack direction="row">
-                <SupervisorAccountIcon sx={{ color: "white", fontSize: 18 }} />
-                <Typography variant="body2" color="white">
-                  {event.joinedBy.length}/{event.personLimit} {"People"}
-                </Typography>
+                  <SupervisorAccountIcon
+                    sx={{ color: "white", fontSize: 18 }}
+                  />
+                  <Typography variant="body2" color="white">
+                    {event.joinedBy.length}/{event.personLimit} {"People"}
+                  </Typography>
                 </Stack>
-                <Button variant="contained" color="secondary" onClick={() => addEvent(event._id)}>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={() => joinEvent(event._id)}
+                >
                   Join event
                 </Button>
               </Stack>
