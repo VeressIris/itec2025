@@ -85,6 +85,14 @@ app.get("/getUser", async (req, res) => {
   return res.json({ result });
 });
 
+app.get("/getEvent", async (req, res) => {
+  const events = db.collection("events");
+
+  const result = await events.findOne({ _id: req.query.eventId });
+
+  return res.json({ result });
+});
+
 // get all upcoming events
 app.get("/getEvents", async (req, res) => {
   const events = db.collection("events");
