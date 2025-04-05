@@ -130,6 +130,36 @@ app.get("/getSimilarEvents", async (req, res) => {
   return res.json({ result });
 });
 
+app.delete("/deleteEvent", async (req, res) => {
+  const events = db.collection("events");
+
+  const eventId = req.query.eventId;
+  const result = await events.deleteOne({ _id: new ObjectId(eventId) });
+
+  return res.json({ result });
+}
+);
+
+app.patch("/updateEvent", async (req, res) => {
+  const events = db.collection("events");
+  const eventId = req.query.eventId;
+  const result = await events.updateOne(
+    { _id: new ObjectId(eventId) },
+    {
+      $set: {
+        date: req.body.date,
+        title: req.body.title,
+        description: req.body.description,
+        class: req.body.class,
+        classTags: req.body.classTags,
+        grade: req.body.grade,
+        personLimit: req.body.personLimit || 30,
+      },
+    }
+  );
+  return res.json({ result });
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
