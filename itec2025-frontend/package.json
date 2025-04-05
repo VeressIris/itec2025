@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ably/chat": "^0.5.1",
     "@clerk/nextjs": "^6.13.0",
     "@date-io/date-fns": "^3.2.1",
     "@emotion/react": "^11.14.0",
@@ -19,8 +20,11 @@
     "@mui/material-nextjs": "^6.4.3",
     "@mui/system": "^7.0.1",
     "@mui/x-date-pickers": "^7.28.3",
+    "ably": "^2.6.5",
+    "axios": "^1.8.4",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
+    "mui-markdown": "^1.2.6",
     "next": "15.2.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
