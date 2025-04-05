@@ -11,6 +11,7 @@ import {
   CardActionArea,
   Chip,
   Skeleton,
+  Button,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
@@ -63,6 +64,32 @@ export default function Page() {
 
     fetchEvents();
   }, []);
+
+  const addEvent = async (eventId: string) => {
+    try {
+      const response = await fetch(`${backendUrl}/joinEvent?eventId=${eventId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || "Failed to join event");
+        return;
+      }
+
+      alert(data.message || "Joined successfully");
+
+      setEvents((prev) => prev.filter((event) => event._id !== eventId));
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong.");
+    }
+  };
 
   if (loading) {
     return (
@@ -128,7 +155,7 @@ export default function Page() {
         Upcoming Events
       </Typography>
 
-      {events == undefined ? (
+      {events.length === 0 ? (
         <Typography variant="h6" color="gray">
           No events found for this month.
         </Typography>
@@ -141,6 +168,7 @@ export default function Page() {
               width: { xs: "80%", sm: "90%", md: "90%", lg: 600 },
               borderRadius: 1.5,
               backgroundColor: "#131d4c",
+              cursor: "pointer",
             }}
           >
             <CardContent sx={{ padding: "8px 16px", minHeight: 60 }}>
@@ -152,8 +180,6 @@ export default function Page() {
                     }
                     alt={event.addedBy.firstName}
                     sx={{ width: 40, height: 40 }}
-                    // sx={{ width: 40, height: 40, cursor: "pointer" }}
-                    // onClick={() => router.push(`/users/${event.addedBy.clerkId}`)}
                   />
                 </Grid>
                 <Grid>
@@ -174,25 +200,22 @@ export default function Page() {
             </CardContent>
 
             {event.imageUrl ? (
-              <CardActionArea
-                onClick={() => router.push(`/events/${event._id}`)}
-              >
+              <CardActionArea onClick={() => router.push(`/events/${event._id}`)}>
                 <CardMedia
                   component="img"
                   height="auto"
                   sx={{ maxHeight: "45vh" }}
-                  image={event.imageUrl || "/images/default-project.pn"}
+                  image={event.imageUrl || "/images/default-project.png"}
                   alt="Event Image"
                 />
               </CardActionArea>
-            ) : (
-              <></>
-            )}
+            ) : null}
 
             <CardContent>
               <Typography variant="body2" color="white">
                 {event.description}
               </Typography>
+
               <Stack direction="row" spacing={1} mt="5px">
                 {event.classTags.map((tag, index) => (
                   <Chip
@@ -207,13 +230,18 @@ export default function Page() {
               <Stack
                 direction="row"
                 alignItems="center"
-                spacing={1}
+                justifyContent="space-between"
                 sx={{ mt: 1 }}
               >
-                <SupervisorAccountIcon sx={{ color: "white", fontSize: 18 }} />
-                <Typography variant="body2" color="white">
-                  {event.joinedBy.length}/{event.personLimit} {"People"}
-                </Typography>
+                <Stack direction="row" alignItems="center" spacing={1}>
+                  <SupervisorAccountIcon sx={{ color: "white", fontSize: 18 }} />
+                  <Typography variant="body2" color="white">
+                    {event.joinedBy.length}/{event.personLimit} People
+                  </Typography>
+                </Stack>
+                <Button variant="contained" onClick={() => addEvent(event._id)}>
+                  Join event
+                </Button>
               </Stack>
             </CardContent>
           </Box>
