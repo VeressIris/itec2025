@@ -11,11 +11,13 @@ import {
   CardActionArea,
   Chip,
   Skeleton,
+  Button,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import { backendUrl } from "@/utils";
 import { Box } from "@mui/system";
+import { text } from "stream/consumers";
 
 interface Event {
   _id: string;
@@ -63,6 +65,32 @@ export default function Page() {
 
     fetchEvents();
   }, []);
+
+  const addEvent = async (eventId: string) => {
+    try {
+      const response = await fetch(`${backendUrl}/joinEvent?eventId=${eventId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        alert(data.message || "Failed to join event");
+        return;
+      }
+  
+      alert(data.message || "Joined successfully");
+      router.refresh(); 
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong.");
+    }
+  };
+  
 
   if (loading) {
     return (
@@ -141,6 +169,7 @@ export default function Page() {
               width: { xs: "80%", sm: "90%", md: "90%", lg: 600 },
               borderRadius: 1.5,
               backgroundColor: "#131d4c",
+              cursor:"pointer"
             }}
           >
             <CardContent sx={{ padding: "8px 16px", minHeight: 60 }}>
@@ -199,21 +228,28 @@ export default function Page() {
                     key={index}
                     label={tag}
                     color="primary"
-                    variant="filled"
+                    variant="outlined"
+                    sx={{ color: "white" }}
                   />
+
                 ))}
               </Stack>
 
               <Stack
                 direction="row"
                 alignItems="center"
-                spacing={1}
+                justifyContent="space-between"
                 sx={{ mt: 1 }}
               >
+                <Stack direction="row">
                 <SupervisorAccountIcon sx={{ color: "white", fontSize: 18 }} />
                 <Typography variant="body2" color="white">
                   {event.joinedBy.length}/{event.personLimit} {"People"}
                 </Typography>
+                </Stack>
+                <Button variant="contained" color="secondary" onClick={() => addEvent(event._id)}>
+                  Join event
+                </Button>
               </Stack>
             </CardContent>
           </Box>
