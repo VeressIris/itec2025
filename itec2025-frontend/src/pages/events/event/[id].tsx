@@ -172,7 +172,7 @@ export default function Event() {
                       {isCreator ? (
                         <Button
                           variant="contained"
-                          color="error"
+                          color="primary"
                           onClick={handleDelete}
                         >
                           Delete Event
