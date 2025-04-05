@@ -33,12 +33,13 @@ export function TestMessages({ chatRoomId }) {
         return response.json();
       })
       .then((data) => {
-        if (data.messages && data.messages.length === 0) {
-          setMessages([]);
-        } else {
+        if (data && Array.isArray(data.messages)) {
           setMessages(data.messages);
+        } else {
+          setMessages([]); // If messages are missing or invalid, set to empty array
         }
       })
+
       .catch((error) => {
         console.error("Error fetching messages:", error);
       });

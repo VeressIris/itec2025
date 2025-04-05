@@ -225,7 +225,6 @@ app.post("/addMessage", requireAuth(), async (req, res) => {
 
   const chatRooms = db.collection("chatRooms");
   const chatRoomId = req.body.chatRoomId;
-  const chatRoom = await chatRooms.findOne({ _id: chatRoomId });
 
   const result = await messages.insertOne({
     sentBy: userId,
@@ -233,8 +232,10 @@ app.post("/addMessage", requireAuth(), async (req, res) => {
     dateSent: new Date(),
   });
 
-  console.log(chatRoom);
-  chatRoom.messages.push(result.insertedId);
+  await chatRooms.updateOne(
+    { _id: new ObjectId(chatRoomId) },
+    { $push: { messages: result.insertedId } }
+  );
 
   return res.json({ result });
 });
