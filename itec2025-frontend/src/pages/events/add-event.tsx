@@ -163,6 +163,7 @@ export default function AddEvent() {
               onChange={handleChange}
               fullWidth
               margin="normal"
+              
             />
 
             <TextField
@@ -173,9 +174,10 @@ export default function AddEvent() {
               onChange={handleChange}
               fullWidth
               margin="normal"
+              
             >
               {gradeOptions.map((grade) => (
-                <MenuItem key={grade} value={grade}>
+                <MenuItem key={grade} value={grade} sx={{color:"white"}}>
                   {grade}
                 </MenuItem>
               ))}
@@ -188,6 +190,17 @@ export default function AddEvent() {
               onChange={(e, newValue) =>
                 setForm((prev) => ({ ...prev, classTags: newValue }))
               }
+              slotProps={{
+                paper: {
+                  sx: {
+                    '& .MuiAutocomplete-listbox': {
+                      '& li': {
+                        color: 'white',
+                      },
+                    },
+                  },
+                },
+              }}
               renderTags={(value: string[], getTagProps) =>
                 value.map((option, index) => (
                   <Chip
@@ -195,6 +208,7 @@ export default function AddEvent() {
                     label={option}
                     {...getTagProps({ index })}
                     key={option}
+                    
                   />
                 ))
               }
@@ -204,6 +218,7 @@ export default function AddEvent() {
                   variant="outlined"
                   label="Class Tags"
                   margin="normal"
+                  
                 />
               )}
             />
@@ -221,10 +236,11 @@ export default function AddEvent() {
 
             <Button
               type="submit"
-              variant="text"
+              variant="outlined"
               href="/events/my-events"
               sx={{ mt: 2 }}
               style={{ marginLeft: "5px" }}
+
             >
               Back to events
             </Button>
