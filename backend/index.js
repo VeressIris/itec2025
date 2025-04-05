@@ -92,7 +92,7 @@ app.get("/getEvents", async (req, res) => {
   return res.json({ result });
 });
 
-app.patch("/joinEvent", async (req, res) => {
+app.patch("/joinEvent", requireAuth(), async (req, res) => {
   const events = db.collection("events");
 
   const { userId } = getAuth(req);
@@ -137,8 +137,7 @@ app.delete("/deleteEvent", async (req, res) => {
   const result = await events.deleteOne({ _id: new ObjectId(eventId) });
 
   return res.json({ result });
-}
-);
+});
 
 app.patch("/updateEvent", async (req, res) => {
   const events = db.collection("events");
@@ -157,6 +156,15 @@ app.patch("/updateEvent", async (req, res) => {
       },
     }
   );
+  return res.json({ result });
+});
+
+app.get("/getUserEvents", requireAuth(), async (req, res) => {
+  const events = db.collection("events");
+  const { userId } = getAuth(req);
+  const query = { $or: [{ joinedBy: userId }, { "addedBy.clerkId": userId }] };
+  const result = await events.find(query).toArray();
+
   return res.json({ result });
 });
 
