@@ -1,3 +1,4 @@
+"use client";
 import { backendUrl } from "@/utils";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
@@ -12,14 +13,14 @@ import {
   Chip,
   MenuItem,
   Stack,
-  CircularProgress,
   Card,
+  Skeleton,
 } from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const classTagOptions = [
   "Math",
@@ -32,6 +33,44 @@ const classTagOptions = [
   "Computer science",
 ];
 const gradeOptions = ["9th", "10th", "11th", "12th"];
+
+function AddEventSkeleton() {
+  return (
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        px: 2,
+      }}
+    >
+      <Container maxWidth="sm">
+        <Card
+          sx={{
+            p: 4,
+            borderRadius: 4,
+          }}
+        >
+          <Stack spacing={3}>
+            <Skeleton variant="rectangular" height={40} width="60%" />
+            <Skeleton variant="rectangular" height={56} width="100%" />
+            <Skeleton variant="rectangular" height={100} width="100%" />
+            <Skeleton variant="rectangular" height={56} width="100%" />
+            <Skeleton variant="rectangular" height={56} width="100%" />
+            <Skeleton variant="rectangular" height={56} width="100%" />
+            <Skeleton variant="rectangular" height={56} width="100%" />
+            <Skeleton variant="rectangular" height={80} width="100%" />
+            <Stack direction="row" spacing={2}>
+              <Skeleton variant="rectangular" height={40} width="50%" />
+              <Skeleton variant="rectangular" height={40} width="50%" />
+            </Stack>
+          </Stack>
+        </Card>
+      </Container>
+    </Box>
+  );
+}
 
 export default function AddEvent() {
   const { getToken } = useAuth();
@@ -56,7 +95,15 @@ export default function AddEvent() {
 
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -64,9 +111,7 @@ export default function AddEvent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setLoading(true);
-
     try {
       const token = await getToken();
       const res = await fetch(`${backendUrl}/addEvent`, {
@@ -79,7 +124,6 @@ export default function AddEvent() {
       });
 
       setSuccess(true);
-      console.log("success");
       setError(null);
       router.push("/events/my-events");
     } catch (err) {
@@ -90,31 +134,33 @@ export default function AddEvent() {
     }
   };
 
+  if (loading) return <AddEventSkeleton />;
+
   return (
     <div
       style={{
         minHeight: "100vh",
-        paddingTop: "5vh",  
+        paddingTop: "5vh",
         paddingBottom: "5vh",
         display: "flex",
         justifyContent: "center",
-
       }}
     >
-
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <Container maxWidth="sm">
-          <Card sx={{
-            p: 3,
-            width: "100%",
-            maxWidth: {
-              xs: "80vw",
-              sm: "80vw",
-              md: "80vw",
-              lg: 600,
-            },
-            mx: "auto",
-          }}>
+          <Card
+            sx={{
+              p: 3,
+              width: "100%",
+              maxWidth: {
+                xs: "80vw",
+                sm: "80vw",
+                md: "80vw",
+                lg: 600,
+              },
+              mx: "auto",
+            }}
+          >
             <Box component="form" onSubmit={handleSubmit}>
               <Typography variant="h5" gutterBottom>
                 Add an event
@@ -191,7 +237,7 @@ export default function AddEvent() {
                 margin="normal"
               >
                 {gradeOptions.map((grade) => (
-                  <MenuItem key={grade} value={grade} sx={{ color: "white" }}>
+                  <MenuItem key={grade} value={grade}>
                     {grade}
                   </MenuItem>
                 ))}
@@ -205,22 +251,6 @@ export default function AddEvent() {
                 onChange={(e, newValue) =>
                   setForm((prev) => ({ ...prev, classTags: newValue }))
                 }
-                slotProps={{
-                  paper: {
-                    sx: {
-                      "& .MuiAutocomplete-listbox": {
-                        "& li": {
-                          color: "white",
-                        },
-                      },
-                      "& .MuiAutocomplete-noOptions": {
-                        color: "white",
-                        px: 2,
-                        py: 1,
-                      },
-                    },
-                  },
-                }}
                 renderTags={(value: string[], getTagProps) =>
                   value.map((option, index) => (
                     <Chip
@@ -242,28 +272,23 @@ export default function AddEvent() {
                 )}
               />
 
-<Stack direction="row" justifyContent="space-between">
-  <Button
-    type="submit"
-    variant="contained"
-    sx={{ mt: 2, minWidth: 120 }}
-    disabled={loading}
-  >
-    {loading ? "Saving..." : "Save"}
-  </Button>
+              <Stack direction="row" justifyContent="space-between">
+                <Button
+                  type="submit"
+                  variant="contained"
+                  sx={{ mt: 2, minWidth: 120 }}
+                >
+                  Save
+                </Button>
 
-  {loading && <CircularProgress size={24} sx={{ mr: 2, mt: 3 }} />}
-
-  <Button
-    type="submit"
-    variant="outlined"
-    href="/events/my-events"
-    sx={{ mt: 2, minWidth: 140, ml: 1 }}
-  >
-    Back to events
-  </Button>
-</Stack>
-
+                <Button
+                  variant="outlined"
+                  href="/events/my-events"
+                  sx={{ mt: 2, minWidth: 140, ml: 1 }}
+                >
+                  Back to events
+                </Button>
+              </Stack>
             </Box>
           </Card>
         </Container>
