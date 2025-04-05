@@ -1,6 +1,5 @@
 import { useState, MouseEvent } from "react";
 import Link from "next/link";
-import { Menu as MenuIcon, Message as MessageIcon } from "@mui/icons-material";
 import {
   AppBar,
   Avatar,
@@ -16,7 +15,6 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-
 import { SignedIn, SignedOut, useClerk } from "@clerk/nextjs";
 
 const title = "BrainCircle";
@@ -38,6 +36,7 @@ export default function Navbar() {
   const handleOpenNavMenu = (event: MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
   };
+
   const handleOpenUserMenu = (event: MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
   };
@@ -55,7 +54,7 @@ export default function Navbar() {
       position="fixed"
       sx={{
         backgroundImage:
-          "linear-gradient(to right,rgb(70, 23, 163),rgb(138, 41, 202))",
+          "linear-gradient(to right, rgb(70, 23, 163), rgb(138, 41, 202))",
         boxShadow: "none",
       }}
     >
@@ -78,34 +77,21 @@ export default function Navbar() {
             {title}
           </Typography>
 
-          <Box
-            sx={{
-              flex: 1,
-              display: { xs: "flex", md: "none" },
-            }}
-          >
+          <Box sx={{ flex: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
+              aria-label="menu"
               onClick={handleOpenNavMenu}
               color="inherit"
             >
-              <MenuIcon />
+              {/* Menu icon removed */}
+              ☰
             </IconButton>
             <Menu
               id="menu-appbar"
               anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "left",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "left",
-              }}
+              anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+              transformOrigin={{ vertical: "top", horizontal: "left" }}
               open={Boolean(anchorElNav)}
               onClose={handleCloseNavMenu}
               sx={{ display: { xs: "block", md: "none" } }}
@@ -137,16 +123,13 @@ export default function Navbar() {
               letterSpacing: ".1rem",
               color: "inherit",
               textDecoration: "none",
+              flexGrow: 1,
             }}
           >
             {title}
           </Typography>
-          <Box
-            sx={{
-              flex: 1,
-              display: { xs: "none", md: "flex" },
-            }}
-          >
+
+          <Box sx={{ flex: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page) => (
               <Button
                 key={page.label}
@@ -167,11 +150,6 @@ export default function Navbar() {
             flex={{ xs: 1, md: 0 }}
           >
             <SignedIn>
-              <Tooltip title="Messages">
-                <IconButton component={Link} href="/messages">
-                  <MessageIcon />
-                </IconButton>
-              </Tooltip>
               <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                   <Avatar alt="User Avatar" src={user?.imageUrl} />
@@ -181,15 +159,8 @@ export default function Navbar() {
                 sx={{ mt: "45px" }}
                 id="menu-appbar"
                 anchorEl={anchorElUser}
-                anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
+                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
                 open={Boolean(anchorElUser)}
                 onClose={handleCloseUserMenu}
               >
@@ -210,6 +181,7 @@ export default function Navbar() {
                 </MenuItem>
               </Menu>
             </SignedIn>
+
             <SignedOut>
               <Button
                 onClick={() => redirectToSignIn()}
