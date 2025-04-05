@@ -73,6 +73,8 @@ app.post("/addEvent", requireAuth(), async (req, res) => {
     personLimit: req.body.personLimit || 30,
     //image maybe?
   });
+
+  return res.json({ message: "Added succesfuly" });
 });
 
 app.get("/getUser", async (req, res) => {

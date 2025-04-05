@@ -14,7 +14,11 @@ export default function Page() {
           justifyContent: "center",
         }}
       >
-        <SignUp path="/sign-up" routing="path" />
+        <SignUp
+          path="/sign-up"
+          routing="path"
+          fallbackRedirectUrl="/post-signup"
+        />
       </div>
     </div>
   );

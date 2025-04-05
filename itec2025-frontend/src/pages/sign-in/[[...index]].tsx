@@ -14,7 +14,11 @@ const SignInPage = () => {
           justifyContent: "center",
         }}
       >
-        <SignIn path="/sign-in" routing="path" />
+        <SignIn
+          path="/sign-in"
+          routing="path"
+          fallbackRedirectUrl="/post-signup"
+        />
       </div>
     </div>
   );
