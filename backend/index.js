@@ -39,7 +39,7 @@ connectDb(client);
 const db = client.db("itec2025");
 
 app.get("/", (req, res) => {
-  res.send("Hello itec2025!");
+  res.send({ message: "Hello itec2025!" });
 });
 
 app.patch("/updateUser", requireAuth(), async (req, res) => {
@@ -294,19 +294,23 @@ app.get("/getChatroomMessages", async (req, res) => {
   return res.json({ result });
 });
 
-app.post("/summarize-pdf", upload.single("pdf"), async (req, res) => {
-  try {
-    const filePath = req.file.path;
-    const fileBuffer = await fs.readFile(filePath);
-    const pdfData = await pdf(fileBuffer);
-    const text = pdfData.text;
+app.post(
+  "/summarize-pdf",
+  upload.single("pdf"),
+  requireAuth(),
+  async (req, res) => {
+    try {
+      const filePath = req.file.path;
+      const fileBuffer = await fs.readFile(filePath);
+      const pdfData = await pdf(fileBuffer);
+      const text = pdfData.text;
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: `You are a helpful assistant that reads and summarizes PDF documents. 
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: `You are a helpful assistant that reads and summarizes PDF documents. 
     You will extract a concise title and a short summary of the document's contents.
     Respond **only** in the following JSON format:
     
@@ -314,21 +318,49 @@ app.post("/summarize-pdf", upload.single("pdf"), async (req, res) => {
       "title": "Your generated title here",
       "summary": "A short, clear summary of the document"
     }`,
-        },
-        {
-          role: "user",
-          content: `Summarize the following PDF content and extract a title. Remember to respond ONLY in JSON format.\n\n${text}`,
-        },
-      ],
-      temperature: 0.5,
-    });
+          },
+          {
+            role: "user",
+            content: `Summarize the following PDF content and extract a title. Remember to respond ONLY in JSON format.\n\n${text}`,
+          },
+        ],
+        temperature: 0.5,
+      });
 
-    await fs.unlink(filePath); // Clean up temp file
-    res.json({ summary: completion.choices[0].message.content.trim() });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Something went wrong." });
+      await fs.unlink(filePath); // Clean up temp file
+
+      const curricula = db.collection("curricula");
+      const { title, summary } = JSON.parse(
+        completion.choices[0].message.content.trim()
+      );
+
+      const { userId } = getAuth(req);
+      const user = await clerkClient.users.getUser(userId);
+
+      const result = await curricula.insertOne({
+        title,
+        summary,
+        pdf: req.file.filename,
+        addedBy: {
+          clerkId: userId,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          imageUrl: user.imageUrl,
+        },
+      });
+      res.json({ summary: completion.choices[0].message.content.trim() });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Something went wrong." });
+    }
   }
+);
+
+app.get("/getCurricula", requireAuth(), async (req, res) => {
+  const curricula = db.collection("curricula");
+  const { userId } = getAuth(req);
+  const result = await curricula.find({ "addedBy.clerkId": userId }).toArray();
+  return res.json({ result });
 });
 
 app.listen(port, () => {
