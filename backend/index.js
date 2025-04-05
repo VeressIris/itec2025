@@ -83,9 +83,10 @@ app.get("/getUser", async (req, res) => {
   return res.json({ result });
 });
 
+// get all upcoming events
 app.get("/getEvents", async (req, res) => {
   const events = db.collection("events");
-  const query = { date: { $gt: new Date() } };
+  const query = { date: { $gt: new Date().toISOString() } };
   const result = await events.find(query).toArray();
 
   return res.json({ result });
@@ -108,6 +109,25 @@ app.patch("/joinEvent", async (req, res) => {
   );
 
   return res.json({ message: "Joined event" });
+});
+
+// get upcoming events that have are either the same class, have the same tags or are for the same grade as a specific event
+app.get("/getSimilarEvents", async (req, res) => {
+  const events = db.collection("events");
+  const event = await events.findOne({ _id: new ObjectId(req.query.eventId) });
+  console.log(event);
+  const query = {
+    date: { $gt: new Date().toISOString() },
+    $or: [
+      { class: event.class },
+      { classTags: event.classTags }, // change to classTags: { $in: event.classTags || [] } for handling arrays
+      { grade: event.grade },
+    ],
+    _id: { $ne: new ObjectId(req.query.eventId) },
+  };
+  const result = await events.find(query).toArray();
+
+  return res.json({ result });
 });
 
 app.listen(port, () => {
