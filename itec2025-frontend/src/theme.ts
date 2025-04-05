@@ -8,11 +8,11 @@ const theme = createTheme({
   palette: {
     primary: {
       main: "#4617a3",
-      contrastText: "#fff",
+      contrastText: "white",
     },
     secondary: {
-      main: "#a31755",
-      contrastText: "#fff",
+      main: "#6817a3",
+      contrastText: "#white",
     },
     background: {
       default: "#f6f0fe",
@@ -25,7 +25,7 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: "32px",
-          backgroundColor: "white",
+          backgroundColor: "#d6c7f5",
         },
       },
     },
