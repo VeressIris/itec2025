@@ -165,6 +165,15 @@ app.patch("/joinEvent", requireAuth(), async (req, res) => {
     { _id: new ObjectId(eventId) },
     { $addToSet: { joinedBy: userId } }
   );
+  const chatRooms = db.collection("chatRooms");
+  await chatRooms.updateOne(
+    { _id: event.chatRoom },
+    {
+      $addToSet: {
+        members: userId,
+      },
+    }
+  );
 
   return res.json({ message: "Joined event" });
 });
