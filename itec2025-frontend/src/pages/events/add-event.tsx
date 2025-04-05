@@ -190,6 +190,17 @@ export default function AddEvent() {
               onChange={(e, newValue) =>
                 setForm((prev) => ({ ...prev, classTags: newValue }))
               }
+              slotProps={{
+                paper: {
+                  sx: {
+                    '& .MuiAutocomplete-listbox': {
+                      '& li': {
+                        color: 'white',
+                      },
+                    },
+                  },
+                },
+              }}
               renderTags={(value: string[], getTagProps) =>
                 value.map((option, index) => (
                   <Chip
