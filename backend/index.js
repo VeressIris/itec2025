@@ -88,7 +88,7 @@ app.get("/getUser", async (req, res) => {
 app.get("/getEvent", async (req, res) => {
   const events = db.collection("events");
 
-  const result = await events.findOne({ _id: req.query.eventId });
+  const result = await events.findOne({ _id: new ObjectId(req.query.eventId) });
 
   return res.json({ result });
 });
