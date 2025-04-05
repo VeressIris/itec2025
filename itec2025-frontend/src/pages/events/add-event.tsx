@@ -170,7 +170,7 @@ export default function AddEvent() {
               />
 
               <TextField
-                label="Class"
+                label="Subject"
                 name="class"
                 value={form.class}
                 onChange={handleChange}
@@ -196,6 +196,7 @@ export default function AddEvent() {
 
               <Autocomplete
                 multiple
+                freeSolo
                 options={classTagOptions}
                 value={form.classTags}
                 onChange={(e, newValue) =>
@@ -209,6 +210,11 @@ export default function AddEvent() {
                           color: "white",
                         },
                       },
+                      "& .MuiAutocomplete-noOptions": {
+                        color: "white",
+                        px: 2,
+                        py: 1,
+                      },
                     },
                   },
                 }}
@@ -217,6 +223,7 @@ export default function AddEvent() {
                     <Chip
                       variant="outlined"
                       label={option}
+                      color="secondary"
                       {...getTagProps({ index })}
                       key={option}
                     />
@@ -226,7 +233,7 @@ export default function AddEvent() {
                   <TextField
                     {...params}
                     variant="outlined"
-                    label="Class Tags"
+                    label="Subject Tags"
                     margin="normal"
                   />
                 )}
