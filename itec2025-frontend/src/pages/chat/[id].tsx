@@ -94,13 +94,13 @@ const MessageArea = styled(Box)({
   display: "flex",
   flexDirection: "column",
   gap: "10px",
-  marginBottom: "80px", // Reserve space for fixed input bar
+  marginBottom: "80px",
 });
 
 const InputSection = styled(Box)({
   position: "fixed",
   bottom: 0,
-  left: 300, // Width of Sidebar
+  left: 300,
   right: 0,
   backgroundColor: "#f5f5f5",
   padding: "20px",
@@ -120,9 +120,16 @@ const MessageInput = styled("input")({
 
 const IconButton = styled(Box)({
   cursor: "pointer",
-  padding: "8px",
+  width: "40px",
+  height: "40px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
   borderRadius: "50%",
-  "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
+  transition: "background-color 0.2s ease-in-out",
+  "&:hover": {
+    backgroundColor: "rgba(0, 0, 0, 0.08)",
+  },
 });
 
 const ProfileImage = styled("img")({
@@ -143,6 +150,7 @@ const MessageBubble = styled(Box, {
   alignSelf: isOwn ? "flex-end" : "flex-start",
   boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
 }));
+
 
 async function initAblyClient(authToken: string) {
   try {
