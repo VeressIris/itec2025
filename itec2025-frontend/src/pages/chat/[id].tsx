@@ -154,9 +154,12 @@ const MessageBubble = styled(Box, {
 
 async function initAblyClient(authToken: string) {
   try {
-    const response = await axios.get("https://itec2025.onrender.com/socket/auth", {
-      headers: { Authorization: `Bearer ${authToken}` },
-    });
+    const response = await axios.get(
+      "https://itec2025.onrender.com/socket/auth",
+      {
+        headers: { Authorization: `Bearer ${authToken}` },
+      }
+    );
 
     return new Ably.Realtime({
       clientId: response.data.userId,
@@ -168,10 +171,19 @@ async function initAblyClient(authToken: string) {
   }
 }
 
-function ChatUI({ roomId, clientId, ablyClient }: { roomId: string; clientId: string; ablyClient: Ably.Realtime }) {
+function ChatUI({
+  roomId,
+  clientId,
+  ablyClient,
+}: {
+  roomId: string;
+  clientId: string;
+  ablyClient: Ably.Realtime;
+}) {
   const [messages, setMessages] = useState<any[]>([]);
   const [text, setText] = useState("");
-  const [channel, setChannel] = useState<Ably.Types.RealtimeChannelCallbacks | null>(null);
+  const [channel, setChannel] =
+    useState<Ably.Types.RealtimeChannelCallbacks | null>(null);
 
   useEffect(() => {
     if (!roomId || !clientId || !ablyClient) return;
@@ -202,10 +214,26 @@ function ChatUI({ roomId, clientId, ablyClient }: { roomId: string; clientId: st
       id: 1,
       name: "Project Team",
       members: [
-        { id: 1, name: "John Doe", image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e" },
-        { id: 2, name: "Jane Smith", image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330" },
-        { id: 3, name: "Mike Johnson", image: "https://images.unsplash.com/photo-1599566150163-29194dcaad36" },
-        { id: 4, name: "Sarah Wilson", image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb" }
+        {
+          id: 1,
+          name: "John Doe",
+          image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e",
+        },
+        {
+          id: 2,
+          name: "Jane Smith",
+          image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330",
+        },
+        {
+          id: 3,
+          name: "Mike Johnson",
+          image: "https://images.unsplash.com/photo-1599566150163-29194dcaad36",
+        },
+        {
+          id: 4,
+          name: "Sarah Wilson",
+          image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb",
+        },
       ],
       lastMessage: "Mike: Welcome everyone!",
       online: true,
@@ -262,9 +290,15 @@ function ChatUI({ roomId, clientId, ablyClient }: { roomId: string; clientId: st
               </Box>
             </Box>
             <Box display="flex" gap={2}>
-              <IconButton><FiVideo /></IconButton>
-              <IconButton><FiPhone /></IconButton>
-              <IconButton><FiMoreVertical /></IconButton>
+              <IconButton>
+                <FiVideo />
+              </IconButton>
+              <IconButton>
+                <FiPhone />
+              </IconButton>
+              <IconButton>
+                <FiMoreVertical />
+              </IconButton>
             </Box>
           </ChatHeader>
 
@@ -274,7 +308,9 @@ function ChatUI({ roomId, clientId, ablyClient }: { roomId: string; clientId: st
                 key={index}
                 display="flex"
                 flexDirection="column"
-                alignItems={msg.clientId === clientId ? "flex-end" : "flex-start"}
+                alignItems={
+                  msg.clientId === clientId ? "flex-end" : "flex-start"
+                }
               >
                 <Box fontSize="0.75rem" color="text.secondary" mb={0.5}>
                   {msg.clientId === clientId ? "You" : msg.clientId}
@@ -287,15 +323,21 @@ function ChatUI({ roomId, clientId, ablyClient }: { roomId: string; clientId: st
           </MessageArea>
 
           <InputSection>
-            <IconButton><FiPaperclip /></IconButton>
+            <IconButton>
+              <FiPaperclip />
+            </IconButton>
             <MessageInput
               placeholder="Type a message..."
               value={text}
               onChange={(e) => setText(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && sendMessage()}
             />
-            <IconButton><FiSmile /></IconButton>
-            <IconButton onClick={sendMessage}><FiSend /></IconButton>
+            <IconButton>
+              <FiSmile />
+            </IconButton>
+            <IconButton onClick={sendMessage}>
+              <FiSend />
+            </IconButton>
           </InputSection>
         </MainChat>
       </Container>
@@ -327,7 +369,11 @@ export default function App() {
   return (
     <ChatClientProvider client={new ChatClient(ablyClient)}>
       <ChatRoomProvider id={id as string} options={AllFeaturesEnabled}>
-        <ChatUI roomId={id as string} clientId={clientId} ablyClient={ablyClient} />
+        <ChatUI
+          roomId={id as string}
+          clientId={clientId}
+          ablyClient={ablyClient}
+        />
       </ChatRoomProvider>
     </ChatClientProvider>
   );

@@ -152,7 +152,7 @@ app.delete("/deleteEvent", async (req, res) => {
   const chatRooms = db.collection("chatRooms");
   const messages = db.collection("messages");
   const eventChatRoom = await chatRooms.findOne({ _id: event.chatRoom });
-    
+
   // delete all messages from chatroom
   if (eventChatRoom.messages && eventChatRoom.messages.length > 0) {
     await messages.deleteMany({
@@ -219,15 +219,23 @@ app.get("/socket/auth", requireAuth(), (req, res) => {
   return res.json({ userId });
 });
 
-app.put("/addMessage", requireAuth(), async (req, res) => {
+app.post("/addMessage", requireAuth(), async (req, res) => {
   const messages = db.collection("messages");
   const { userId } = getAuth(req);
+
+  const chatRooms = db.collection("chatRooms");
+  const chatRoomId = req.body.chatRoomId;
 
   const result = await messages.insertOne({
     sentBy: userId,
     text: req.body.message,
-    date: new Date(),
+    dateSent: new Date(),
   });
+
+  await chatRooms.updateOne(
+    { _id: new ObjectId(chatRoomId) },
+    { $push: { messages: result.insertedId } }
+  );
 
   return res.json({ result });
 });
@@ -237,7 +245,7 @@ app.get("/getChatroomMessages", async (req, res) => {
   const chatRoom = await chatRooms.findOne({
     _id: new ObjectId(req.query.chatRoomId),
   });
-
+  
   const messages = db.collection("messages");
   const result = await messages
     .find({ _id: { $in: chatRoom.messages } })
