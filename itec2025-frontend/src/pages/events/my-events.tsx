@@ -6,9 +6,12 @@ import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
 import { backendUrl } from "@/utils";
 import { useRouter } from "next/router";
+import { useAuth } from "@clerk/nextjs";
 
 export default function MyEvents() {
   const router = useRouter();
+  const { getToken } = useAuth();
+
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs());
   const [eventsData, setEventsData] = useState<
     {
@@ -26,8 +29,13 @@ export default function MyEvents() {
 
   useEffect(() => {
     const getEventsData = async () => {
-      const response = await fetch(`${backendUrl}/getEvents`, {
+      const token = await getToken();
+      const response = await fetch(`${backendUrl}/getUserEvents`, {
         method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (!response.ok) {
@@ -36,6 +44,7 @@ export default function MyEvents() {
       }
 
       const data = await response.json();
+      console.log(data);
       setEventsData(data.result);
     };
 

@@ -7,3 +7,14 @@ export async function connectDb(client) {
     process.exit(1);
   }
 }
+
+export async function createChatRoom(creatorId, db) {
+  const chatRooms = db.collection("chatRooms");
+
+  const result = await chatRooms.insertOne({
+    members: [creatorId],
+    messages: [],
+  });
+
+  return result.insertedId;
+}

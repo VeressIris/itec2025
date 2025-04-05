@@ -8,7 +8,7 @@ import {
 } from "@clerk/express";
 import "dotenv/config";
 import { MongoClient, ServerApiVersion, ObjectId } from "mongodb";
-import { connectDb } from "./utils.js";
+import { connectDb, createChatRoom } from "./utils.js";
 
 const app = express();
 const port = 3001;
@@ -55,6 +55,8 @@ app.post("/addEvent", requireAuth(), async (req, res) => {
   const events = db.collection("events");
   const { userId } = getAuth(req);
 
+  const chatRoomId = await createChatRoom(userId, db);
+
   const user = await clerkClient.users.getUser(userId);
   events.insertOne({
     addedBy: {
@@ -71,6 +73,7 @@ app.post("/addEvent", requireAuth(), async (req, res) => {
     classTags: req.body.classTags,
     grade: req.body.grade,
     personLimit: req.body.personLimit || 30,
+    chatRoom: chatRoomId,
     //image maybe?
   });
 
@@ -144,6 +147,23 @@ app.delete("/deleteEvent", async (req, res) => {
   const events = db.collection("events");
 
   const eventId = req.query.eventId;
+  const event = await events.findOne({ _id: new ObjectId(eventId) });
+
+  const chatRooms = db.collection("chatRooms");
+  const messages = db.collection("messages");
+  const eventChatRoom = await chatRooms.findOne({ _id: event.chatRoom });
+    
+  // delete all messages from chatroom
+  if (eventChatRoom.messages && eventChatRoom.messages.length > 0) {
+    await messages.deleteMany({
+      _id: { $in: eventChatRoom.messages.map((id) => id) },
+    });
+  }
+
+  // delete chatroom
+  await chatRooms.deleteOne({ _id: event.chatRoom });
+
+  // delete event
   const result = await events.deleteOne({ _id: new ObjectId(eventId) });
 
   return res.json({ result });
@@ -192,9 +212,37 @@ app.patch("/leaveEvent", requireAuth(), async (req, res) => {
   return res.json({ message: "Left event" });
 });
 
+// Chatroom features
+
 app.get("/socket/auth", requireAuth(), (req, res) => {
   const { userId } = getAuth(req);
   return res.json({ userId });
+});
+
+app.put("/addMessage", requireAuth(), async (req, res) => {
+  const messages = db.collection("messages");
+  const { userId } = getAuth(req);
+
+  const result = await messages.insertOne({
+    sentBy: userId,
+    text: req.body.message,
+    date: new Date(),
+  });
+
+  return res.json({ result });
+});
+
+app.get("/getChatroomMessages", async (req, res) => {
+  const chatRooms = db.collection("chatRooms");
+  const chatRoom = await chatRooms.findOne({
+    _id: new ObjectId(req.query.chatRoomId),
+  });
+
+  const messages = db.collection("messages");
+  const result = await messages
+    .find({ _id: { $in: chatRoom.messages } })
+    .toArray();
+  return res.json({ result });
 });
 
 app.listen(port, () => {
