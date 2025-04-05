@@ -5,7 +5,7 @@ import {
   ChatClientProvider,
   ChatRoomProvider,
 } from "@ably/chat";
-import { Messages } from "@/components/Messages";
+import { Messages } from "@/components/messages";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -14,11 +14,14 @@ import { useAuth } from "@clerk/nextjs";
 async function initAblyClient(authToken) {
   console.log("Auth Token:", authToken);
   try {
-    const response = await axios.get("http://localhost:3001/socket/auth", {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
-    });
+    const response = await axios.get(
+      "https://itec2025.onrender.com/socket/auth",
+      {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
 
     const clientId = response.data.userId;
 
@@ -38,7 +41,7 @@ function App() {
   const router = useRouter();
   const { id } = router.query; // chatRoomId
   const { getToken } = useAuth(); // Get the Clerk token
-  const [token, setToken] = useState(null);
+  const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchToken = async () => {

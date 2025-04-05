@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Message, useMessages } from "@ably/chat";
 
-// This is a simple chat component that uses the useMessages hook in Ably Chat to send and receive messages.
 export function Messages() {
   // Setup some state for the messages and a listener for chat messages using the useMessages hook
   const [message, setMessage] = useState("My first message with Ably Chat!");
