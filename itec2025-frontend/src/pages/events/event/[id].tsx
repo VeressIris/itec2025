@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import { EventType } from "@/types";
 import { useAuth, useClerk } from "@clerk/nextjs";
+import Link from "next/link";
 
 export default function Event() {
   const router = useRouter();
@@ -156,7 +157,7 @@ export default function Event() {
                   🕒 {dayjs(eventDetails.date).format("dddd, MMMM D YYYY")}
                 </Typography>
 
-                <Stack direction="row" spacing={2} mt={4}>
+                <Stack direction="row" spacing={2} mt={4} flexWrap="wrap">
                   {!attending && (
                     <Button
                       variant="contained"
@@ -167,8 +168,9 @@ export default function Event() {
                     </Button>
                   )}
 
-                  {attending && (
-                    <>
+                {attending && (
+                  <Stack direction="column" spacing={2}>
+                    <Stack direction="row" spacing={2}>
                       {isCreator ? (
                         <Button
                           variant="contained"
@@ -197,8 +199,18 @@ export default function Event() {
                       >
                         Add to Google Calendar
                       </Button>
-                    </>
-                  )}
+                    </Stack>
+
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      component={Link}
+                      href={`/chat/${eventDetails.chatRoom}`}
+                    >
+                      Go to Event Chat
+                    </Button>
+                  </Stack>
+                )}
                 </Stack>
               </CardContent>
             </Card>
