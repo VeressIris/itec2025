@@ -238,26 +238,102 @@ export default function ProfilePage(): React.ReactElement {
             slotProps={{ input: { readOnly: !edit } }}
           />
 
-          <FormControl fullWidth required>
-            <InputLabel id="profile-gender-label">Gender</InputLabel>
-            <Select
-              name="gender"
-              labelId="profile-gender-label"
-              label="Gender"
-              required
-              value={formValues.gender}
-              onChange={handleGenderChange}
-              slotProps={{ input: { readOnly: !edit } }}
+        <FormControl fullWidth required>
+        <InputLabel id="profile-gender-label" sx={{ color: "white" }}>
+            Gender
+        </InputLabel>
+        <Select
+            name="gender"
+            labelId="profile-gender-label"
+            label="Gender"
+            required
+            value={formValues.gender}
+            onChange={handleGenderChange}
+            slotProps={{ input: { readOnly: !edit } }}
+            sx={{
+            color: "white",
+            backgroundColor: "#cbb8f5",
+            "& .MuiOutlinedInput-notchedOutline": {
+                borderColor: "purple",
+            },
+            "&:hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: "purple",
+            },
+            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                borderColor: "purple",
+            },
+            }}
+            MenuProps={{
+            PaperProps: {
+                sx: {
+                backgroundColor: "#1a0033",
+                color: "white",
+                },
+            },
+            }}
+        >
+            <MenuItem disabled value="" sx={{ color: "#aaa" }}>
+            Select a value
+            </MenuItem>
+            <MenuItem
+            value="MALE"
+            sx={{
+                color: "white",
+                "&.Mui-selected": {
+                backgroundColor: "#5e17eb",
+                },
+                "&:hover": {
+                backgroundColor: "#6c1fff",
+                },
+            }}
             >
-              <MenuItem disabled value="">
-                Select a value
-              </MenuItem>
-              <MenuItem value="MALE">Male</MenuItem>
-              <MenuItem value="FEMALE">Female</MenuItem>
-              <MenuItem value="OTHER">Other</MenuItem>
-              <MenuItem value="DONOTWANTTOSAY">Prefer not to say</MenuItem>
-            </Select>
-          </FormControl>
+            Male
+            </MenuItem>
+            <MenuItem
+            value="FEMALE"
+            sx={{
+                color: "white",
+                "&.Mui-selected": {
+                backgroundColor: "#5e17eb",
+                },
+                "&:hover": {
+                backgroundColor: "#6c1fff",
+                },
+            }}
+            >
+            Female
+            </MenuItem>
+            <MenuItem
+            value="OTHER"
+            sx={{
+                color: "white",
+                "&.Mui-selected": {
+                backgroundColor: "#5e17eb",
+                },
+                "&:hover": {
+                backgroundColor: "#6c1fff",
+                },
+            }}
+            >
+            Other
+            </MenuItem>
+            <MenuItem
+            value="DONOTWANTTOSAY"
+            sx={{
+                color: "white",
+                "&.Mui-selected": {
+                backgroundColor: "#5e17eb",
+                },
+                "&:hover": {
+                backgroundColor: "#6c1fff",
+                },
+            }}
+            >
+            Prefer not to say
+            </MenuItem>
+        </Select>
+        </FormControl>
+
 
           <TextField
             label="GitHub Link"
