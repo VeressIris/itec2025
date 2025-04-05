@@ -163,6 +163,7 @@ export default function AddEvent() {
               onChange={handleChange}
               fullWidth
               margin="normal"
+              
             />
 
             <TextField
@@ -173,9 +174,10 @@ export default function AddEvent() {
               onChange={handleChange}
               fullWidth
               margin="normal"
+              
             >
               {gradeOptions.map((grade) => (
-                <MenuItem key={grade} value={grade}>
+                <MenuItem key={grade} value={grade} sx={{color:"white"}}>
                   {grade}
                 </MenuItem>
               ))}
@@ -195,6 +197,7 @@ export default function AddEvent() {
                     label={option}
                     {...getTagProps({ index })}
                     key={option}
+                    
                   />
                 ))
               }
@@ -204,6 +207,7 @@ export default function AddEvent() {
                   variant="outlined"
                   label="Class Tags"
                   margin="normal"
+                  
                 />
               )}
             />
