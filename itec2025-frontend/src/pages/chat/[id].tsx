@@ -131,7 +131,6 @@ const MessageBubble = styled(Box, {
 })(({ isOwn }: { isOwn: boolean }) => ({
   maxWidth: "70%",
   padding: "10px",
-  
   borderRadius: "12px",
   backgroundColor: isOwn ? "#1976d2" : "#fff",
   color: isOwn ? "#fff" : "#000",
@@ -141,7 +140,7 @@ const MessageBubble = styled(Box, {
 
 async function initAblyClient(authToken: string) {
   try {
-    const response = await axios.get("http://localhost:3001/socket/auth", {
+    const response = await axios.get("https://itec2025.onrender.com/socket/auth", {
       headers: { Authorization: `Bearer ${authToken}` },
     });
 
@@ -155,32 +154,31 @@ async function initAblyClient(authToken: string) {
   }
 }
 
-function ChatUI({ roomId, clientId }: { roomId: string; clientId: string }) {
+function ChatUI({ roomId, clientId, ablyClient }: { roomId: string; clientId: string; ablyClient: Ably.Realtime }) {
   const [messages, setMessages] = useState<any[]>([]);
   const [text, setText] = useState("");
   const [channel, setChannel] = useState<Ably.Types.RealtimeChannelCallbacks | null>(null);
 
   useEffect(() => {
-    if (!roomId || !clientId) return;
+    if (!roomId || !clientId || !ablyClient) return;
 
-    const ably = new Ably.Realtime("oUmUXw.lX0mkA:AdvoJuOfsDia7Mo3m5t13Zd9Iuewfy0AAZ5v0M8pDP4");
-    const ch = ably.channels.get(roomId);
+    const ch = ablyClient.channels.get(roomId);
     setChannel(ch);
 
-    ch.subscribe((msg) => {
+    const onMessage = (msg: Ably.Types.Message) => {
       setMessages((prev) => [...prev, msg]);
-    });
+    };
+
+    ch.subscribe("message", onMessage);
 
     return () => {
-      ch.unsubscribe();
-      ably.close();
+      ch.unsubscribe("message", onMessage);
     };
-  }, [roomId, clientId]);
+  }, [roomId, clientId, ablyClient]);
 
   const sendMessage = () => {
     if (text.trim() && channel) {
       channel.publish("message", { text, clientId });
-      setMessages((prev) => [...prev, { data: { text }, clientId }]);
       setText("");
     }
   };
@@ -192,6 +190,8 @@ function ChatUI({ roomId, clientId }: { roomId: string; clientId: string }) {
       members: [
         { id: 1, name: "John Doe", image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e" },
         { id: 2, name: "Jane Smith", image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330" },
+        { id: 3, name: "Mike Johnson", image: "https://images.unsplash.com/photo-1599566150163-29194dcaad36" },
+        { id: 4, name: "Sarah Wilson", image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb" }
       ],
       lastMessage: "Mike: Welcome everyone!",
       online: true,
@@ -263,7 +263,7 @@ function ChatUI({ roomId, clientId }: { roomId: string; clientId: string }) {
                 alignItems={msg.clientId === clientId ? "flex-end" : "flex-start"}
               >
                 <Box fontSize="0.75rem" color="text.secondary" mb={0.5}>
-                  {msg.clientId}
+                  {msg.clientId === clientId ? "You" : msg.clientId}
                 </Box>
                 <MessageBubble isOwn={msg.clientId === clientId}>
                   {msg.data.text}
@@ -313,7 +313,7 @@ export default function App() {
   return (
     <ChatClientProvider client={new ChatClient(ablyClient)}>
       <ChatRoomProvider id={id as string} options={AllFeaturesEnabled}>
-        <ChatUI roomId={id as string} clientId={clientId} />
+        <ChatUI roomId={id as string} clientId={clientId} ablyClient={ablyClient} />
       </ChatRoomProvider>
     </ChatClientProvider>
   );
