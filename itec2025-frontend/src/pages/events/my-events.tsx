@@ -15,13 +15,13 @@ import { backendUrl } from "@/utils";
 import { useRouter } from "next/router";
 import { useAuth } from "@clerk/nextjs";
 
-export default function MyEvents() {
-  const router = useRouter();
+const MyEvents = () => {
   const { getToken } = useAuth();
+  const router = useRouter();
 
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs());
-  const [eventsData, setEventsData] = useState<
-    {
+  const [events, setEventsData] = useState<
+    Array<{
       title: string;
       description: string;
       personLimit: number;
@@ -30,48 +30,54 @@ export default function MyEvents() {
       classTags: string[];
       grade: string;
       _id: string;
-    }[]
+    }>
   >([]);
+  const [filteredEvents, setFilteredEvents] = useState(events);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const getEventsData = async () => {
+    const fetchEvents = async () => {
       setLoading(true);
-      const token = await getToken();
-      const response = await fetch(`${backendUrl}/getUserEvents`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      try {
+        const token = await getToken();
+        const response = await fetch(`${backendUrl}/getUserEvents`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-      if (!response.ok) {
-        setError("An error occurred.");
+        if (!response.ok) throw new Error("An error occurred.");
+
+        const { result } = await response.json();
+        setEventsData(result);
+        setFilteredEvents(
+          result.filter((event) => {
+            return dayjs(event.date).isSame(selectedDate, "day");
+          })
+        );
+      } catch (err) {
+        setError(err.message || "An error occurred.");
+      } finally {
         setLoading(false);
-        return;
       }
-
-      const data = await response.json();
-      setEventsData(data.result);
-      setLoading(false);
     };
 
-    getEventsData();
-  }, []);
+    fetchEvents();
+  }, [getToken, selectedDate]);
 
-  const filteredEvents = eventsData.filter(
-    (event) =>
-      dayjs(event.date).format("MMMM D, YYYY") ===
-      selectedDate?.format("MMMM D, YYYY")
-  );
-
-  if (loading)
+  if (loading) {
     return (
       <Stack gap={4} direction="row" justifyContent="center" p={4}>
         <Stack spacing={3}>
-          <Skeleton variant="rectangular" width={312} height={320} sx={{ borderRadius: 2 }} />
+          <Skeleton
+            variant="rectangular"
+            width={312}
+            height={320}
+            sx={{ borderRadius: 2 }}
+          />
           <Stack spacing={1}>
             <Skeleton variant="text" width={220} height={28} />
             {[...Array(3)].map((_, i) => (
@@ -90,6 +96,7 @@ export default function MyEvents() {
         </Stack>
       </Stack>
     );
+  }
 
   return (
     <Stack
@@ -106,22 +113,20 @@ export default function MyEvents() {
           <DateCalendar value={selectedDate} onChange={setSelectedDate} />
         </LocalizationProvider>
 
-        {filteredEvents.length > 0 ? (
+        {filteredEvents.length ? (
           <Stack spacing={1}>
             <Typography variant="h6">
               Events on {selectedDate?.format("MMMM D, YYYY")}:
             </Typography>
-            {filteredEvents.map((event, index) => (
+            {filteredEvents.map((event) => (
               <Paper
-                key={index}
+                key={event._id}
                 sx={{ padding: 1, backgroundColor: "#1e1e2f" }}
               >
                 <Typography
                   color="white"
-                  style={{ cursor: "pointer" }}
-                  onClick={() => {
-                    router.push(`/events/event/${event._id}`);
-                  }}
+                  sx={{ cursor: "pointer" }}
+                  onClick={() => router.push(`/events/event/${event._id}`)}
                 >
                   {event.title}
                 </Typography>
@@ -144,4 +149,6 @@ export default function MyEvents() {
       </Stack>
     </Stack>
   );
-}
+};
+
+export default MyEvents;
