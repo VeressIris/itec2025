@@ -20,7 +20,6 @@ export default function Home() {
                 color: "white",
                 position: "relative",
                 px: 3,
-                
             }}
         >
             <Container maxWidth="md">
