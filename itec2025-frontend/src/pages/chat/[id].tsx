@@ -12,25 +12,6 @@ import { useAuth } from "@clerk/nextjs";
 import React from "react";
 import { Messages } from "@/components/messages";
 
-import {
-  Box,
-  CssBaseline,
-  ThemeProvider,
-  createTheme,
-  Avatar,
-  AvatarGroup,
-} from "@mui/material";
-import { styled } from "@mui/system";
-import {
-  FiVideo,
-  FiPhone,
-  FiMoreVertical,
-  FiPaperclip,
-  FiSmile,
-  FiSend,
-} from "react-icons/fi";
-import { BsCircleFill } from "react-icons/bs";
-
 async function initAblyClient(authToken: string) {
   try {
     const response = await axios.get(
@@ -48,18 +29,6 @@ async function initAblyClient(authToken: string) {
     console.error("Error initializing Ably client:", err);
     return null;
   }
-}
-
-function ChatUI({
-  roomId,
-  clientId,
-  ablyClient,
-}: {
-  roomId: string;
-  clientId: string;
-  ablyClient: Ably.Realtime;
-}) {
-  
 }
 
 export default function App() {
@@ -91,7 +60,7 @@ export default function App() {
           clientId={clientId}
           ablyClient={ablyClient}
         /> */}
-        <Messages chatRoomId={id} clientId={clientId}/>
+        <Messages chatRoomId={id} clientId={clientId} />
       </ChatRoomProvider>
     </ChatClientProvider>
   );
