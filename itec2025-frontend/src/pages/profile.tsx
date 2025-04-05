@@ -63,12 +63,21 @@ export default function ProfilePage(): React.ReactElement {
 
         const data = await res.json();
         const result = data.result;
+
+        let grade = "";
+        let username = "";
+
+        if (result) {
+          grade = result.grade;
+          username = result.username;
+        }
+
         const values = {
-          firstName: result.firstName || "",
-          lastName: result.lastName || "",
-          username: result.username || "",
-          grade: result.grade || "",
-          email: result.email || "",
+          firstName: user?.firstName || "",
+          lastName: user?.lastName || "",
+          username: username,
+          grade: grade,
+          email: user?.primaryEmailAddress || "",
         };
 
         setFormValues(values);

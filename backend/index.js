@@ -45,6 +45,7 @@ app.get("/", (req, res) => {
 app.patch("/updateUser", requireAuth(), async (req, res) => {
   const { userId } = getAuth(req);
   const user = await clerkClient.users.getUser(userId);
+
   const users = db.collection("users");
 
   const result = await users.updateOne(
@@ -58,7 +59,8 @@ app.patch("/updateUser", requireAuth(), async (req, res) => {
         username: req.body.username,
         imageUrl: user.imageUrl,
       },
-    }
+    },
+    { upsert: true }
   );
   return res.json({ result });
 });
