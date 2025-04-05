@@ -77,6 +77,7 @@ export function TestMessages({ chatRoomId }: { chatRoomId: string }) {
   // This function takes the message from the input field and sends it to the chat using the send function
   // returned from the useMessages hook
   const handleSend = async () => {
+    if (!message.trim()) return; 
     try {
       await send({ text: message });
       await sendMessage(message);
@@ -86,6 +87,7 @@ export function TestMessages({ chatRoomId }: { chatRoomId: string }) {
       console.error("error sending message", error);
     }
   };
+  
 
   return (
     <div
