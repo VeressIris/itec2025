@@ -236,10 +236,11 @@ export default function AddEvent() {
 
             <Button
               type="submit"
-              variant="text"
+              variant="outlined"
               href="/events/my-events"
               sx={{ mt: 2 }}
               style={{ marginLeft: "5px" }}
+
             >
               Back to events
             </Button>
