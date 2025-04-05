@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Message, useMessages } from "@ably/chat";
 import { useAuth } from "@clerk/nextjs";
 
-export function TestMessages({ chatRoomId }) {
+export function TestMessages({ chatRoomId }: { chatRoomId: string }) {
   const { getToken } = useAuth();
 
   // Setup some state for the messages and a listener for chat messages using the useMessages hook
@@ -45,7 +45,7 @@ export function TestMessages({ chatRoomId }) {
       });
   }
 
-  async function sendMessage(text) {
+  async function sendMessage(text: string) {
     const token = await getToken();
     // fetch("https://itec2025.onrender.com/addMessage", {
     fetch("http://localhost:3001/addMessage", {

@@ -23,7 +23,7 @@ async function initAblyClient(authToken: string) {
 
     return new Ably.Realtime({
       clientId: response.data.userId,
-      key: "oUmUXw.lX0mkA:AdvoJuOfsDia7Mo3m5t13Zd9Iuewfy0AAZ5v0M8pDP4",
+      key: process.env.NEXT_PUBLIC_ABLY_KEY,
     });
   } catch (err) {
     console.error("Error initializing Ably client:", err);
@@ -60,7 +60,7 @@ export default function App() {
           clientId={clientId}
           ablyClient={ablyClient}
         /> */}
-        <Messages chatRoomId={id} clientId={clientId} />
+        <Messages chatRoomId={Array.isArray(id) ? id[0] : id} clientId={clientId} />
       </ChatRoomProvider>
     </ChatClientProvider>
   );
