@@ -92,7 +92,6 @@ export default function Page() {
       router.refresh();
     } catch (err) {
       console.error(err);
-      alert("Something went wrong.");
     }
   };
 
@@ -206,7 +205,9 @@ export default function Page() {
             </CardContent>
 
             {event.imageUrl ? (
-              <CardActionArea onClick={() => router.push(`/events/${event._id}`)}>
+              <CardActionArea
+                onClick={() => router.push(`/events/${event._id}`)}
+              >
                 <CardMedia
                   component="img"
                   height="auto"
