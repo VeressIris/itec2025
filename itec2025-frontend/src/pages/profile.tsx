@@ -46,7 +46,6 @@ export default function ProfilePage(): React.ReactElement {
     const fetchUserData = async () => {
       try {
         const token = await getToken();
-        console.log(token);
         const res = await fetch(
           `${backendUrl}/getUser?userId=${encodeURIComponent(user.id)}`,
           {
@@ -126,6 +125,7 @@ export default function ProfilePage(): React.ReactElement {
 
       const data = await res.json();
       const result = data.result;
+      console.log(result);
     } catch (err) {
       console.error("Error fetching user data:", err);
     }
