@@ -99,7 +99,7 @@ export default function AddEvent() {
     >
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <Container maxWidth="sm">
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 8 }}>
+          <Box component="form" onSubmit={handleSubmit} sx={{ mt:18, mb:4}}>
             <Typography variant="h5" gutterBottom>
               Add an event
             </Typography>
@@ -223,6 +223,8 @@ export default function AddEvent() {
               )}
             />
 
+            <Stack direction="row" justifyContent="space-between"  >
+
             <Button
               type="submit"
               variant="contained"
@@ -238,12 +240,13 @@ export default function AddEvent() {
               type="submit"
               variant="outlined"
               href="/events/my-events"
-              sx={{ mt: 2 }}
+              sx={{ mt: 2}}
               style={{ marginLeft: "5px" }}
 
             >
               Back to events
             </Button>
+            </Stack>
           </Box>
         </Container>
       </LocalizationProvider>
