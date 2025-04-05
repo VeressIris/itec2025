@@ -119,7 +119,7 @@ export default function Event() {
                     <>
                       <Button
                         variant="contained"
-                        color="warning"
+                        color="secondary"
                         onClick={handleAttend}
                       >
                         Unattend Event
