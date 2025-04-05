@@ -1,4 +1,4 @@
-import React from "react";
+import { useState, MouseEvent } from "react";
 import Link from "next/link";
 import { Menu as MenuIcon, Message as MessageIcon } from "@mui/icons-material";
 import {
@@ -17,34 +17,28 @@ import {
   Typography,
 } from "@mui/material";
 
-
 import { SignedIn, SignedOut, useClerk } from "@clerk/nextjs";
 
 const title = "BrainCircle";
 
-const pages = [
-  { label: "Upcoming Events", href: "/events/upcoming-events" },
-];
+const pages = [{ label: "Upcoming Events", href: "/events/upcoming-events" }];
 
 const settings = [
   { label: "My Profile", href: "/profile" },
   { label: "My Events", href: "/events/my-events" },
-]
+  { label: "My Curriculum", href: "/curricula/my-curricula" },
+];
 
-export default function Navbar(): React.ReactElement {
+export default function Navbar() {
   const { signOut, redirectToSignIn, user } = useClerk();
 
-  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
-    null
-  );
-  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
-    null
-  );
+  const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
+  const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
 
-  const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
+  const handleOpenNavMenu = (event: MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
   };
-  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
+  const handleOpenUserMenu = (event: MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
   };
 
@@ -60,7 +54,8 @@ export default function Navbar(): React.ReactElement {
     <AppBar
       position="fixed"
       sx={{
-        backgroundImage: "linear-gradient(to right,rgb(70, 23, 163),rgb(138, 41, 202))",
+        backgroundImage:
+          "linear-gradient(to right,rgb(70, 23, 163),rgb(138, 41, 202))",
         boxShadow: "none",
       }}
     >
@@ -123,7 +118,7 @@ export default function Navbar(): React.ReactElement {
                   onClick={handleCloseNavMenu}
                   sx={{ color: "white" }}
                 >
-                  <Typography sx={{ textAlign: "center"}}>
+                  <Typography sx={{ textAlign: "center" }}>
                     {page.label}
                   </Typography>
                 </MenuItem>
@@ -210,7 +205,9 @@ export default function Navbar(): React.ReactElement {
                   </MenuItem>
                 ))}
                 <Divider />
-                <MenuItem  sx={{ color: "white" }} onClick={() => signOut()}>Logout</MenuItem>
+                <MenuItem sx={{ color: "white" }} onClick={() => signOut()}>
+                  Logout
+                </MenuItem>
               </Menu>
             </SignedIn>
             <SignedOut>

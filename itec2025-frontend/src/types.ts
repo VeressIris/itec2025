@@ -9,4 +9,11 @@ interface EventType {
   _id: string;
 }
 
-export type { EventType };
+interface CurriculumType {
+  title: string;
+  summary: string;
+  audio: string;
+  _id: string;
+}
+
+export type { EventType, CurriculumType };
