@@ -13,6 +13,7 @@ import {
   Chip,
   MenuItem,
   Stack,
+  CircularProgress,
   Card,
   Skeleton,
 } from "@mui/material";
@@ -46,12 +47,7 @@ function AddEventSkeleton() {
       }}
     >
       <Container maxWidth="sm">
-        <Card
-          sx={{
-            p: 4,
-            borderRadius: 4,
-          }}
-        >
+        <Card sx={{ p: 4, borderRadius: 4 }}>
           <Stack spacing={3}>
             <Skeleton variant="rectangular" height={40} width="60%" />
             <Skeleton variant="rectangular" height={56} width="100%" />
@@ -95,14 +91,15 @@ export default function AddEvent() {
 
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1500);
+    const timeout = setTimeout(() => {
+      setInitialLoading(false);
+    }, 1000); // shows skeleton for 1 second
 
-    return () => clearTimeout(timer);
+    return () => clearTimeout(timeout);
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -112,9 +109,10 @@ export default function AddEvent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       const token = await getToken();
-      const res = await fetch(`${backendUrl}/addEvent`, {
+      await fetch(`${backendUrl}/addEvent`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -134,7 +132,7 @@ export default function AddEvent() {
     }
   };
 
-  if (loading) return <AddEventSkeleton />;
+  if (initialLoading) return <AddEventSkeleton />;
 
   return (
     <div
@@ -237,7 +235,7 @@ export default function AddEvent() {
                 margin="normal"
               >
                 {gradeOptions.map((grade) => (
-                  <MenuItem key={grade} value={grade}>
+                  <MenuItem key={grade} value={grade} sx={{ color: "white" }}>
                     {grade}
                   </MenuItem>
                 ))}
@@ -251,6 +249,22 @@ export default function AddEvent() {
                 onChange={(e, newValue) =>
                   setForm((prev) => ({ ...prev, classTags: newValue }))
                 }
+                slotProps={{
+                  paper: {
+                    sx: {
+                      "& .MuiAutocomplete-listbox": {
+                        "& li": {
+                          color: "white",
+                        },
+                      },
+                      "& .MuiAutocomplete-noOptions": {
+                        color: "white",
+                        px: 2,
+                        py: 1,
+                      },
+                    },
+                  },
+                }}
                 renderTags={(value: string[], getTagProps) =>
                   value.map((option, index) => (
                     <Chip
@@ -282,12 +296,9 @@ export default function AddEvent() {
                   {loading ? "Saving..." : "Save"}
                 </Button>
 
-                {loading && (
-                  <CircularProgress size={24} sx={{ mr: 2, mt: 3 }} />
-                )}
+                {loading && <CircularProgress size={24} sx={{ mr: 2, mt: 3 }} />}
 
                 <Button
-                  type="submit"
                   variant="outlined"
                   href="/events/my-events"
                   sx={{ mt: 2, minWidth: 140, ml: 1 }}
