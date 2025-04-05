@@ -42,8 +42,10 @@ app.patch("/updateUser", requireAuth(), async (req, res) => {
     { clerkId: userId },
     {
       $set: {
-        email: user.primaryEmailAddress.emailAddress,
+        // email: user.primaryEmailAddress.emailAddress,
         grade: req.body.grade,
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
         username: req.body.username,
         imageUrl: user.imageUrl,
       },
