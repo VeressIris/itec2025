@@ -170,6 +170,20 @@ app.get("/getUserEvents", requireAuth(), async (req, res) => {
   return res.json({ result });
 });
 
+app.patch("/leaveEvent", requireAuth(), async (req, res) => {
+  const events = db.collection("events");
+
+  const { userId } = getAuth(req);
+  const eventId = req.query.eventId;
+
+  await events.updateOne(
+    { _id: new ObjectId(eventId) },
+    { $pull: { joinedBy: userId } }
+  );
+
+  return res.json({ message: "Left event" });
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
