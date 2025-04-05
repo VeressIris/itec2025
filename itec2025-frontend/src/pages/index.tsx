@@ -10,18 +10,20 @@ export default function Home() {
     const theme = useTheme();
 
     return (
-        <Box
-            sx={{
-                height: {xs: "calc(100vh - 56px)", md: "calc(100vh - 64px)"},
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundImage: "linear-gradient(to right, rgb(70, 23, 163),rgb(138, 41, 202))",
-                color: "white",
-                position: "relative",
-                px: 3,
-            }}
-        >
+<Box
+  sx={{
+    minHeight: { xs: "calc(100vh - 56px)", md: "calc(100vh - 64px)" },
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundImage: "linear-gradient(to right, rgb(70, 23, 163), rgb(138, 41, 202))",
+    color: "white",
+    position: "relative",
+    px: 3,
+    pb: { xs: 6, md: 8 }
+  }}
+>
+
             <Container maxWidth="md">
                 <Stack
                     spacing={5}
