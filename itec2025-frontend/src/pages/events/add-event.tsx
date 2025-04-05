@@ -12,6 +12,7 @@ import {
   MenuItem,
   Stack,
   CircularProgress,
+  Card,
 } from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers";
@@ -75,10 +76,8 @@ export default function AddEvent() {
         body: JSON.stringify(form),
       });
 
-      //if (!res.ok) throw new Error("Failed to save");
-
       setSuccess(true);
-      console.log("sucess");
+      console.log("success");
       setError(null);
     } catch (err) {
       console.error(err);
@@ -99,155 +98,151 @@ export default function AddEvent() {
     >
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <Container maxWidth="sm">
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt:18, mb:4}}>
-            <Typography variant="h5" gutterBottom>
-              Add an event
-            </Typography>
+          <Card sx={{ p: 3, mt: 18, mb: 4 }}>
+            <Box component="form" onSubmit={handleSubmit}>
+              <Typography variant="h5" gutterBottom>
+                Add an event
+              </Typography>
 
-            {error && <Alert severity="error">{error}</Alert>}
-            {success && (
-              <Alert severity="success">Event saved successfully!</Alert>
-            )}
+              {error && <Alert severity="error">{error}</Alert>}
+              {success && (
+                <Alert severity="success">Event saved successfully!</Alert>
+              )}
 
-            <TextField
-              label="Event Name"
-              name="title"
-              value={form.title}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-              required
-            />
+              <TextField
+                label="Event Name"
+                name="title"
+                value={form.title}
+                onChange={handleChange}
+                fullWidth
+                margin="normal"
+                required
+              />
 
-            <TextField
-              label="Event Description"
-              name="description"
-              value={form.description}
-              onChange={handleChange}
-              fullWidth
-              multiline
-              margin="normal"
-              required
-            />
+              <TextField
+                label="Event Description"
+                name="description"
+                value={form.description}
+                onChange={handleChange}
+                fullWidth
+                multiline
+                margin="normal"
+                required
+              />
 
-            <DatePicker
-              label="Date"
-              value={form.date}
-              onChange={(newDate) => {
-                if (newDate) {
-                  setForm((prev) => ({ ...prev, date: newDate }));
+              <DatePicker
+                label="Date"
+                value={form.date}
+                onChange={(newDate) => {
+                  if (newDate) {
+                    setForm((prev) => ({ ...prev, date: newDate }));
+                  }
+                }}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    margin: "normal",
+                  },
+                }}
+              />
+
+              <TextField
+                label="Person Limit"
+                name="personLimit"
+                type="number"
+                value={form.personLimit}
+                onChange={handleChange}
+                fullWidth
+                margin="normal"
+              />
+
+              <TextField
+                label="Class"
+                name="class"
+                value={form.class}
+                onChange={handleChange}
+                fullWidth
+                margin="normal"
+              />
+
+              <TextField
+                select
+                label="Grade"
+                name="grade"
+                value={form.grade}
+                onChange={handleChange}
+                fullWidth
+                margin="normal"
+              >
+                {gradeOptions.map((grade) => (
+                  <MenuItem key={grade} value={grade} sx={{ color: "white" }}>
+                    {grade}
+                  </MenuItem>
+                ))}
+              </TextField>
+
+              <Autocomplete
+                multiple
+                options={classTagOptions}
+                value={form.classTags}
+                onChange={(e, newValue) =>
+                  setForm((prev) => ({ ...prev, classTags: newValue }))
                 }
-              }}
-              slotProps={{
-                textField: {
-                  fullWidth: true,
-                  margin: "normal",
-                },
-              }}
-            />
-
-            <TextField
-              label="Person Limit"
-              name="personLimit"
-              type="number"
-              value={form.personLimit}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-            />
-
-            <TextField
-              label="Class"
-              name="class"
-              value={form.class}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-              
-            />
-
-            <TextField
-              select
-              label="Grade"
-              name="grade"
-              value={form.grade}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-              
-            >
-              {gradeOptions.map((grade) => (
-                <MenuItem key={grade} value={grade} sx={{color:"white"}}>
-                  {grade}
-                </MenuItem>
-              ))}
-            </TextField>
-
-            <Autocomplete
-              multiple
-              options={classTagOptions}
-              value={form.classTags}
-              onChange={(e, newValue) =>
-                setForm((prev) => ({ ...prev, classTags: newValue }))
-              }
-              slotProps={{
-                paper: {
-                  sx: {
-                    '& .MuiAutocomplete-listbox': {
-                      '& li': {
-                        color: 'white',
+                slotProps={{
+                  paper: {
+                    sx: {
+                      "& .MuiAutocomplete-listbox": {
+                        "& li": {
+                          color: "white",
+                        },
                       },
                     },
                   },
-                },
-              }}
-              renderTags={(value: string[], getTagProps) =>
-                value.map((option, index) => (
-                  <Chip
+                }}
+                renderTags={(value: string[], getTagProps) =>
+                  value.map((option, index) => (
+                    <Chip
+                      variant="outlined"
+                      label={option}
+                      {...getTagProps({ index })}
+                      key={option}
+                    />
+                  ))
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
                     variant="outlined"
-                    label={option}
-                    {...getTagProps({ index })}
-                    key={option}
-                    
+                    label="Class Tags"
+                    margin="normal"
                   />
-                ))
-              }
-              renderInput={(params) => (
-                <TextField
-                  {...params}
+                )}
+              />
+
+              <Stack direction="row" justifyContent="space-between">
+                <Button
+                  type="submit"
+                  variant="contained"
+                  sx={{ mt: 2 }}
+                  disabled={loading}
+                >
+                  {loading ? "Saving..." : "Save"}
+                </Button>
+
+                {loading && <CircularProgress size={24} sx={{ mr: 2 }} />}
+
+                <Button
+                  type="submit"
                   variant="outlined"
-                  label="Class Tags"
-                  margin="normal"
-                  
-                />
-              )}
-            />
-
-            <Stack direction="row" justifyContent="space-between"  >
-
-            <Button
-              type="submit"
-              variant="contained"
-              sx={{ mt: 2 }}
-              disabled={loading}
-            >
-              {loading ? "Saving..." : "Save"}
-            </Button>
-
-            {loading && <CircularProgress size={24} sx={{ mr: 2 }} />}
-
-            <Button
-              type="submit"
-              variant="outlined"
-              href="/events/my-events"
-              sx={{ mt: 2}}
-              style={{ marginLeft: "5px" }}
-
-            >
-              Back to events
-            </Button>
-            </Stack>
-          </Box>
+                  href="/events/my-events"
+                  sx={{ mt: 2 }}
+                  style={{ marginLeft: "5px" }}
+                >
+                  Back to events
+                </Button>
+              </Stack>
+            </Box>
+          </Card>
         </Container>
       </LocalizationProvider>
     </div>
