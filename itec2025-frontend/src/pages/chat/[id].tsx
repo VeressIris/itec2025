@@ -38,11 +38,10 @@ const theme = createTheme({
   },
 });
 
-const Container = styled(Box)(({ theme }) => ({
+const Container = styled(Box)({
   display: "flex",
   height: "100vh",
-  backgroundColor: theme.palette.background.default,
-}));
+});
 
 const Sidebar = styled(Box)({
   width: "300px",
@@ -52,9 +51,10 @@ const Sidebar = styled(Box)({
 });
 
 const MainChat = styled(Box)({
-  flex: 1,
   display: "flex",
   flexDirection: "column",
+  flexGrow: 1,
+  position: "relative",
 });
 
 const ProfileSection = styled(Box)({
@@ -88,15 +88,21 @@ const ChatHeader = styled(Box)({
 });
 
 const MessageArea = styled(Box)({
-  flex: 1,
-  padding: "20px",
+  flexGrow: 1,
   overflowY: "auto",
+  padding: "20px",
   display: "flex",
   flexDirection: "column",
   gap: "10px",
+  marginBottom: "80px", // Reserve space for fixed input bar
 });
 
 const InputSection = styled(Box)({
+  position: "fixed",
+  bottom: 0,
+  left: 300, // Width of Sidebar
+  right: 0,
+  backgroundColor: "#f5f5f5",
   padding: "20px",
   borderTop: "1px solid rgba(0, 0, 0, 0.12)",
   display: "flex",
