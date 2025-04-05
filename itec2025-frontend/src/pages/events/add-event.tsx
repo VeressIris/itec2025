@@ -90,15 +90,28 @@ export default function AddEvent() {
   return (
     <div
       style={{
-        height: "90vh",
+        minHeight: "100vh",
+        paddingTop: "5vh",  
+        paddingBottom: "5vh",
         display: "flex",
-        alignItems: "center",
         justifyContent: "center",
+
       }}
     >
+
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <Container maxWidth="sm">
-          <Card sx={{ p: 3, mt: 18, mb: 4 }}>
+          <Card sx={{
+            p: 3,
+            width: "100%",
+            maxWidth: {
+              xs: "80vw",
+              sm: "80vw",
+              md: "80vw",
+              lg: 600,
+            },
+            mx: "auto",
+          }}>
             <Box component="form" onSubmit={handleSubmit}>
               <Typography variant="h5" gutterBottom>
                 Add an event
@@ -219,28 +232,28 @@ export default function AddEvent() {
                 )}
               />
 
-              <Stack direction="row" justifyContent="space-between">
-                <Button
-                  type="submit"
-                  variant="contained"
-                  sx={{ mt: 2 }}
-                  disabled={loading}
-                >
-                  {loading ? "Saving..." : "Save"}
-                </Button>
+<Stack direction="row" justifyContent="space-between">
+  <Button
+    type="submit"
+    variant="contained"
+    sx={{ mt: 2, minWidth: 120 }}
+    disabled={loading}
+  >
+    {loading ? "Saving..." : "Save"}
+  </Button>
 
-                {loading && <CircularProgress size={24} sx={{ mr: 2 }} />}
+  {loading && <CircularProgress size={24} sx={{ mr: 2, mt: 3 }} />}
 
-                <Button
-                  type="submit"
-                  variant="outlined"
-                  href="/events/my-events"
-                  sx={{ mt: 2 }}
-                  style={{ marginLeft: "5px" }}
-                >
-                  Back to events
-                </Button>
-              </Stack>
+  <Button
+    type="submit"
+    variant="outlined"
+    href="/events/my-events"
+    sx={{ mt: 2, minWidth: 140, ml: 1 }}
+  >
+    Back to events
+  </Button>
+</Stack>
+
             </Box>
           </Card>
         </Container>
