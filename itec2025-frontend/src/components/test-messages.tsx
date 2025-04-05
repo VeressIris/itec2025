@@ -18,7 +18,7 @@ export function TestMessages({ chatRoomId }) {
   useEffect(() => {
     // Fetch messages when the component mounts
     fetchMessages();
-  }, []);
+  }, [chatRoomId]);
 
   function fetchMessages() {
     fetch(
@@ -33,8 +33,8 @@ export function TestMessages({ chatRoomId }) {
         return response.json();
       })
       .then((data) => {
-        if (data && Array.isArray(data.messages)) {
-          setMessages(data.messages);
+        if (data && Array.isArray(data.result)) {
+          setMessages(data.result);
         } else {
           setMessages([]); // If messages are missing or invalid, set to empty array
         }

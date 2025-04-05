@@ -245,6 +245,7 @@ app.get("/getChatroomMessages", async (req, res) => {
   const chatRoom = await chatRooms.findOne({
     _id: new ObjectId(req.query.chatRoomId),
   });
+  
   const messages = db.collection("messages");
   const result = await messages
     .find({ _id: { $in: chatRoom.messages } })
