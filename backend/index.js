@@ -32,6 +32,25 @@ app.get("/", (req, res) => {
   res.send("Hello itec2025!");
 });
 
+app.patch("/updateUser", requireAuth(), async (req, res) => {
+  const { userId } = getAuth(req);
+  const user = await clerkClient.users.getUser(userId);
+  const users = db.collection("users");
+
+  const result = await users.updateOne(
+    { clerkId: userId },
+    {
+      $set: {
+        email: user.primaryEmailAddress.emailAddress,
+        grade: req.body.grade,
+        username: req.body.username,
+        imageUrl: user.imageUrl,
+      },
+    }
+  );
+  return res.json({ result });
+});
+
 app.post("/addUser", requireAuth(), async (req, res) => {
   const { userId } = getAuth(req);
 
@@ -226,6 +245,10 @@ app.post("/addMessage", requireAuth(), async (req, res) => {
   const chatRooms = db.collection("chatRooms");
   const chatRoomId = req.body.chatRoomId;
 
+  if (req.body.message === "") {
+    return res.status(400).json({ message: "Message cannot be empty" });
+  }
+
   const result = await messages.insertOne({
     sentBy: userId,
     text: req.body.message,
@@ -245,7 +268,7 @@ app.get("/getChatroomMessages", async (req, res) => {
   const chatRoom = await chatRooms.findOne({
     _id: new ObjectId(req.query.chatRoomId),
   });
-  
+
   const messages = db.collection("messages");
   const result = await messages
     .find({ _id: { $in: chatRoom.messages } })
