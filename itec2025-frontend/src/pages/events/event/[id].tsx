@@ -21,6 +21,7 @@ export default function Event() {
   const { user } = useClerk();
 
   const [eventDetails, setEventDetails] = useState<EventType | null>(null);
+  const [recommended, setRecommended] = useState<EventType | null>(null);
   const [loading, setLoading] = useState(false);
   const [attending, setAttending] = useState(false);
   const [isCreator, setIsCreator] = useState(false);
@@ -115,13 +116,20 @@ export default function Event() {
 
       try {
         const response = await fetch(`${backendUrl}/getEvent?eventId=${id}`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch event details");
-        }
+        if (!response.ok) throw new Error("Failed to fetch event details");
+
         const data = await response.json();
         setEventDetails(data.result);
         setAttending(data.result.joinedBy.includes(user.id));
         setIsCreator(data.result.addedBy.clerkId === user.id);
+
+        const similarResponse = await fetch(
+          `${backendUrl}/getSimilarEvents?eventId=${id}`
+        );
+        const similarData = await similarResponse.json();
+        if (Array.isArray(similarData.result) && similarData.result.length > 0) {
+          setRecommended(similarData.result[0]);
+        }
       } catch (error) {
         console.error(error);
       } finally {
@@ -135,15 +143,17 @@ export default function Event() {
   return (
     <div
       style={{
-        height: "90vh",
+        minHeight: "90vh",
         display: "flex",
+        flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
       }}
     >
-      <div>
-        {loading && <CircularProgress size={24} sx={{ mr: 2 }} />}
-        {!loading && eventDetails && (
+      {loading && <CircularProgress size={24} sx={{ mt: 4 }} />}
+
+      {!loading && eventDetails && (
+        <>
           <Box display="flex" justifyContent="center" mt={5}>
             <Card sx={{ maxWidth: 600, width: "100%", p: 3 }}>
               <CardContent>
@@ -168,56 +178,94 @@ export default function Event() {
                     </Button>
                   )}
 
-                {attending && (
-                  <Stack direction="column" spacing={2}>
-                    <Stack direction="row" spacing={2}>
-                      {isCreator ? (
+                  {attending && (
+                    <Stack direction="column" spacing={2}>
+                      <Stack direction="row" spacing={2}>
+                        {isCreator ? (
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleDelete}
+                          >
+                            Delete Event
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="contained"
+                            color="secondary"
+                            onClick={handleAttend}
+                          >
+                            Leave Event
+                          </Button>
+                        )}
+
                         <Button
-                          variant="contained"
-                          color="primary"
-                          onClick={handleDelete}
-                        >
-                          Delete Event
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="contained"
+                          variant="outlined"
                           color="secondary"
-                          onClick={handleAttend}
+                          component="a"
+                          href={generateGoogleCalendarLink(eventDetails)}
+                          target="_blank"
+                          rel="noopener noreferrer"
                         >
-                          Leave Event
+                          Add to Google Calendar
                         </Button>
-                      )}
+                      </Stack>
 
                       <Button
                         variant="outlined"
-                        color="secondary"
-                        component="a"
-                        href={generateGoogleCalendarLink(eventDetails)}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        color="primary"
+                        component={Link}
+                        href={`/chat/${eventDetails.chatRoom}`}
                       >
-                        Add to Google Calendar
+                        Go to Event Chat
                       </Button>
                     </Stack>
-
-                    <Button
-                      variant="outlined"
-                      color="primary"
-                      component={Link}
-                      href={`/chat/${eventDetails.chatRoom}`}
-                    >
-                      Go to Event Chat
-                    </Button>
-                  </Stack>
-                )}
+                  )}
                 </Stack>
               </CardContent>
             </Card>
           </Box>
-        )}
-        {!loading && !eventDetails && <p>No event found</p>}
-      </div>
+
+          {recommended && (
+            <>
+              <Box mt={6} mb={2}>
+                <Typography variant="h5" fontWeight="bold" textAlign="center">
+                  Recommended Event
+                </Typography>
+              </Box>
+
+              <Box display="flex" justifyContent="center" mb={6}>
+
+                <Card sx={{ maxWidth: 600, width: "100%", p: 3 }}>
+                  <CardContent>
+                    <Typography variant="h4" gutterBottom>
+                      {recommended.title}
+                    </Typography>
+                    <Typography variant="body1" gutterBottom>
+                      {recommended.description}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                      📅 {dayjs(recommended.date).format("dddd, MMMM D YYYY")}
+                    </Typography>
+
+                    <Box mt={2}>
+                      <Button
+                        variant="outlined"
+                        component={Link}
+                        href={`/events/event/${recommended._id}`}
+                      >
+                        View Event
+                      </Button>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Box>
+            </>
+          )}
+        </>
+      )}
+
+      {!loading && !eventDetails && <p>No event found</p>}
     </div>
   );
 }
