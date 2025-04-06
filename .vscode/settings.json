@@ -1,3 +1,8 @@
 {
-  "workbench.colorTheme": "Hack The Box"
+  "workbench.colorTheme": "Hack The Box",
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#610406",
+    "titleBar.activeBackground": "#880608",
+    "titleBar.activeForeground": "#FFFBFB"
+  }
 }

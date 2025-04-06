@@ -54,11 +54,11 @@ const MyEvents = () => {
         const { result } = await response.json();
         setEventsData(result);
         setFilteredEvents(
-          result.filter((event) => {
+          result.filter((event: any) => {
             return dayjs(event.date).isSame(selectedDate, "day");
           })
         );
-      } catch (err) {
+      } catch (err: any) {
         setError(err.message || "An error occurred.");
       } finally {
         setLoading(false);
