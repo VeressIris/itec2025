@@ -166,17 +166,18 @@ export default function Page() {
       ) : (
         events.map((event) => (
           <Box
-            onClick={() => router.push(`/events/${event._id}`)}
+            onClick={() => router.push(`/events/event/${event._id}`)}
             key={event._id}
             sx={{
               width: { xs: "80%", sm: "90%", md: "90%", lg: 600 },
               borderRadius: 1.5,
               backgroundColor: "#131d4c",
               cursor: "pointer",
-              cursor: "pointer",
             }}
           >
-            <CardContent sx={{ padding: "8px 16px", minHeight: 60 }}>
+            <CardContent sx={{ padding: "8px 16px", minHeight: 60 }}
+            onClick={() => router.push(`/events/event/${event._id}`)}
+            >
               <Grid container alignItems="center" spacing={1}>
                 <Grid>
                   <Avatar
@@ -206,7 +207,7 @@ export default function Page() {
 
             {event.imageUrl ? (
               <CardActionArea
-                onClick={() => router.push(`/events/${event._id}`)}
+                onClick={() => router.push(`/events/event/${event._id}`)}
               >
                 <CardMedia
                   component="img"
