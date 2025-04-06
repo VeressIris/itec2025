@@ -14,6 +14,13 @@ import pdf from "pdf-parse";
 import fs from "fs/promises";
 import OpenAI from "openai";
 
+import formidable from "formidable";
+import pdfParse from "pdf-parse";
+import { createReadStream } from "fs";
+import { readFile } from "fs/promises";
+import gTTS from "gtts";
+
+
 const app = express();
 const port = 3001;
 
@@ -21,9 +28,9 @@ app.use(cors());
 app.use(clerkMiddleware());
 app.use(express.json());
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// const openai = new OpenAI({
+//   apiKey: process.env.OPENAI_API_KEY,
+// });
 
 const upload = multer({ dest: "uploads/" });
 
@@ -285,9 +292,8 @@ app.get("/socket/auth", requireAuth(), (req, res) => {
 
 app.post("/addMessage", requireAuth(), async (req, res) => {
   const messages = db.collection("messages");
-  const { userId } = getAuth(req);
-
   const chatRooms = db.collection("chatRooms");
+  const { userId } = getAuth(req);
   const chatRoomId = req.body.chatRoomId;
 
   if (req.body.message === "") {
@@ -295,14 +301,17 @@ app.post("/addMessage", requireAuth(), async (req, res) => {
   }
 
   const result = await messages.insertOne({
-    sentBy: userId,
+    senderId: userId,
     text: req.body.message,
-    dateSent: new Date(),
+    timestamp: new Date(),
   });
 
   await chatRooms.updateOne(
     { _id: new ObjectId(chatRoomId) },
-    { $push: { messages: result.insertedId } }
+    {
+      $push: { messages: result.insertedId },
+      $addToSet: { members: userId }, // Ensure sender is added as a member
+    }
   );
 
   return res.json({ result });
@@ -321,67 +330,67 @@ app.get("/getChatroomMessages", async (req, res) => {
   return res.json({ result });
 });
 
-app.post(
-  "/summarize-pdf",
-  upload.single("pdf"),
-  requireAuth(),
-  async (req, res) => {
-    try {
-      const filePath = req.file.path;
-      const fileBuffer = await fs.readFile(filePath);
-      const pdfData = await pdf(fileBuffer);
-      const text = pdfData.text;
+// app.post(
+//   "/summarize-pdf",
+//   upload.single("pdf"),
+//   requireAuth(),
+//   async (req, res) => {
+//     try {
+//       const filePath = req.file.path;
+//       const fileBuffer = await fs.readFile(filePath);
+//       const pdfData = await pdf(fileBuffer);
+//       const text = pdfData.text;
 
-      const completion = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [
-          {
-            role: "system",
-            content: `You are a helpful assistant that reads and summarizes PDF documents. 
-    You will extract a concise title and a short summary of the document's contents.
-    Respond **only** in the following JSON format:
+//       const completion = await openai.chat.completions.create({
+//         model: "gpt-4o-mini",
+//         messages: [
+//           {
+//             role: "system",
+//             content: `You are a helpful assistant that reads and summarizes PDF documents. 
+//     You will extract a concise title and a short summary of the document's contents.
+//     Respond **only** in the following JSON format:
     
-    {
-      "title": "Your generated title here",
-      "summary": "A short, clear summary of the document"
-    }`,
-          },
-          {
-            role: "user",
-            content: `Summarize the following PDF content and extract a title. Remember to respond ONLY in JSON format.\n\n${text}`,
-          },
-        ],
-        temperature: 0.5,
-      });
+//     {
+//       "title": "Your generated title here",
+//       "summary": "A short, clear summary of the document"
+//     }`,
+//           },
+//           {
+//             role: "user",
+//             content: `Summarize the following PDF content and extract a title. Remember to respond ONLY in JSON format.\n\n${text}`,
+//           },
+//         ],
+//         temperature: 0.5,
+//       });
 
-      await fs.unlink(filePath); // Clean up temp file
+//       await fs.unlink(filePath); // Clean up temp file
 
-      const curricula = db.collection("curricula");
-      const { title, summary } = JSON.parse(
-        completion.choices[0].message.content.trim()
-      );
+//       const curricula = db.collection("curricula");
+//       const { title, summary } = JSON.parse(
+//         completion.choices[0].message.content.trim()
+//       );
 
-      const { userId } = getAuth(req);
-      const user = await clerkClient.users.getUser(userId);
+//       const { userId } = getAuth(req);
+//       const user = await clerkClient.users.getUser(userId);
 
-      const result = await curricula.insertOne({
-        title,
-        summary,
-        pdf: req.file.filename,
-        addedBy: {
-          clerkId: userId,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          imageUrl: user.imageUrl,
-        },
-      });
-      res.json({ summary: completion.choices[0].message.content.trim() });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Something went wrong." });
-    }
-  }
-);
+//       const result = await curricula.insertOne({
+//         title,
+//         summary,
+//         pdf: req.file.filename,
+//         addedBy: {
+//           clerkId: userId,
+//           firstName: user.firstName,
+//           lastName: user.lastName,
+//           imageUrl: user.imageUrl,
+//         },
+//       });
+//       res.json({ summary: completion.choices[0].message.content.trim() });
+//     } catch (error) {
+//       console.error(error);
+//       res.status(500).json({ error: "Something went wrong." });
+//     }
+//   }
+// );
 
 app.get("/getCurricula", requireAuth(), async (req, res) => {
   const curricula = db.collection("curricula");
@@ -390,6 +399,40 @@ app.get("/getCurricula", requireAuth(), async (req, res) => {
   return res.json({ result });
 });
 
+
+
+
+app.post("/api/txt-to-audio", (req, res) => {
+  const form = formidable({ multiples: false });
+
+  form.parse(req, async (err, fields, files) => {
+    if (err || !files.file) {
+      return res.status(400).json({ error: "Invalid upload" });
+    }
+
+    const file = files.file;
+    const text = (await fs.readFile(file.filepath)).toString().trim();
+
+    if (!text) {
+      return res.status(400).send("❌ TXT file is empty.");
+    }
+
+    const gtts = new gTTS(text, "en");
+    const outputPath = "./output.mp3";
+
+    gtts.save(outputPath, (err) => {
+      if (err) {
+        console.error("Eroare gtts:", err);
+        return res.status(500).send("Eroare generare audio.");
+      }
+
+      res.setHeader("Content-Type", "audio/mpeg");
+      createReadStream(outputPath).pipe(res);
+    });
+  });
+});
+
+
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(`✅ Server running at http://localhost:${port}`);
 });
