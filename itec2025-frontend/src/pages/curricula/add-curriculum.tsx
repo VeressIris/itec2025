@@ -1,4 +1,5 @@
 import { backendUrl } from "@/utils";
+import { useAuth } from "@clerk/nextjs";
 import {
   Alert,
   Box,
@@ -20,6 +21,8 @@ export default function AddCurriculum() {
   const [fileName, setFileName] = useState("");
   const [file, setFile] = useState<File | null>(null);
 
+  const { getToken } = useAuth();
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setFile(e.target.files[0]);
@@ -38,8 +41,13 @@ export default function AddCurriculum() {
     formData.append("pdf", file);
 
     try {
+      const token = await getToken();
       const res = await fetch(`${backendUrl}/summarize-pdf`, {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: formData,
       });
 

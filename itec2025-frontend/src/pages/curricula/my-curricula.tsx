@@ -14,12 +14,15 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { backendUrl } from "@/utils";
 import { CurriculumType } from "@/types";
+import { useAuth } from "@clerk/nextjs";
 
 export default function MyCurriculum() {
   const [curriculums, setCurriculums] = useState<CurriculumType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
   const router = useRouter();
+
+  const { getToken } = useAuth();
 
   const handleAdd = () => {
     router.push("/curricula/add-curriculum");
@@ -29,7 +32,14 @@ export default function MyCurriculum() {
     setLoading(true);
     const fetchCurriculums = async () => {
       try {
-        const response = await fetch(`${backendUrl}/getCurricula`);
+        const token = await getToken();
+        const response = await fetch(`${backendUrl}/getCurricula`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
         const data = await response.json();
         console.log(data);
         setCurriculums(data.result);

@@ -14,9 +14,12 @@ import { Messages } from "@/components/messages";
 
 async function initAblyClient(authToken: string) {
   try {
-    const response = await axios.get("https://itec2025.onrender.com/socket/auth", {
-      headers: { Authorization: `Bearer ${authToken}` },
-    });
+    const response = await axios.get(
+      "https://itec2025.onrender.com/socket/auth",
+      {
+        headers: { Authorization: `Bearer ${authToken}` },
+      }
+    );
 
     return new Ably.Realtime({
       clientId: response.data.userId,
@@ -66,7 +69,10 @@ export default function App() {
   return (
     <ChatClientProvider client={new ChatClient(ablyClient)}>
       <ChatRoomProvider id={id as string} options={AllFeaturesEnabled}>
-        <Messages chatRoomId={Array.isArray(id) ? id[0] : id} clientId={clientId} />
+        <Messages
+          chatRoomId={Array.isArray(id) ? id[0] : id}
+          clientId={clientId}
+        />
       </ChatRoomProvider>
     </ChatClientProvider>
   );
