@@ -433,6 +433,34 @@ app.post("/api/txt-to-audio", (req, res) => {
 });
 
 
+app.post('/uploadFile', (req, res) => {
+  const file = req.files?.file;
+
+  if (!file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  const uploadPath = path.join(__dirname, 'uploads', file.name);
+
+  // Move the file to the 'uploads' folder
+  file.mv(uploadPath, (err) => {
+    if (err) {
+      console.error('Error moving the file:', err);
+      return res.status(500).json({ error: 'File upload failed' });
+    }
+
+    // Return a success response with file details
+    return res.status(200).json({
+      message: 'File uploaded successfully',
+      file: {
+        name: file.name,
+        path: uploadPath,
+      },
+    });
+  });
+});
+
+// Start the server
 app.listen(port, () => {
-  console.log(`✅ Server running at http://localhost:${port}`);
+  console.log(`Server running at http://localhost:${port}`);
 });

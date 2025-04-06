@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Message, useMessages } from "@ably/chat";
 import { useAuth, useUser } from "@clerk/nextjs";
 import {
@@ -8,6 +8,7 @@ import {
   createTheme,
   Avatar,
   AvatarGroup,
+  IconButton,
 } from "@mui/material";
 import { styled } from "@mui/system";
 import {
@@ -19,29 +20,35 @@ import {
   FiSend,
 } from "react-icons/fi";
 import { BsCircleFill } from "react-icons/bs";
+import dayjs from "dayjs";
 
 interface MessagesProps {
   chatRoomId: string;
   clientId: string;
 }
 
+interface ChatMessage {
+  senderId: string;
+  text: string;
+  timestamp?: string;
+  dateSent?: string;
+}
+
 export function Messages({ chatRoomId, clientId }: MessagesProps) {
   const { getToken } = useAuth();
   const { user } = useUser();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [message, setMessage] = useState("My first message with Ably Chat!");
   const [messages, setMessages] = useState<Message[]>([]);
   const [participants, setParticipants] = useState<
     { clerkId: string; firstName: string; lastName: string; imageUrl: string }[]
   >([]);
+  const [eventTitle, setEventTitle] = useState("");
 
   const { send } = useMessages({
     listener: (event) => {
-      const normalizedMessage = {
-        ...event.message,
-        clientId: event.message.clientId || "unknown",
-        text: event.message.text || "",
-      };
-      setMessages((prev) => [...prev, normalizedMessage]);
+      setMessages((prev) => [...prev, event.message]);
     },
   });
 
@@ -49,40 +56,38 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
     if (chatRoomId) {
       fetchMessages();
       fetchParticipants();
+      fetchEventTitle();
     }
   }, [chatRoomId]);
+
+  function fetchEventTitle() {
+    fetch(`https://itec2025.onrender.com/getChatMembers?chatRoomId=${chatRoomId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.result?.title) {
+          setEventTitle(data.result.title);
+        }
+      });
+  }
+
   function fetchMessages() {
-    fetch(
-      `https://itec2025.onrender.com/getChatroomMessages?chatRoomId=${encodeURIComponent(
-        chatRoomId
-      )}`
-    )
+    fetch(`https://itec2025.onrender.com/getChatroomMessages?chatRoomId=${chatRoomId}`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data.result)) {
-          setMessages(
-            data.result.map((msg: any) => ({
-              ...msg,
-              clientId: msg.sentBy || msg.clientId || "unknown",
-              text: msg.message || msg.text || "",
-            }))
-          );
+          setMessages(data.result);
         }
-      })
-      .catch((err) => console.error("Error fetching messages:", err));
+      });
   }
 
   function fetchParticipants() {
-    fetch(
-      `https://itec2025.onrender.com/getChatMembers?chatRoomId=${chatRoomId}`
-    )
+    fetch(`https://itec2025.onrender.com/getChatMembers?chatRoomId=${chatRoomId}`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data.participants)) {
           setParticipants(data.participants);
         }
-      })
-      .catch((err) => console.error("Error fetching participants:", err));
+      });
   }
 
   async function sendMessage(text: string) {
@@ -96,19 +101,36 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
       body: JSON.stringify({
         message: text,
         chatRoomId,
+        senderId: user?.id,
       }),
-    })
-      .then((res) => res.json())
-      .then(() => setMessage(""))
-      .catch((err) => console.error("Error sending message:", err));
+    }).then(() => setMessage(""));
   }
 
   const handleSend = async () => {
-    try {
-      await send({ text: message });
-      await sendMessage(message);
-    } catch (err) {
-      console.error("error sending message", err);
+    await send({ text: message });
+    await sendMessage(message);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    const token = await getToken();
+
+    const res = await fetch("https://itec2025.onrender.com/uploadFile", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      await send({ text: `Uploaded file: ${file.name}` });
+      await sendMessage(`Uploaded file: ${file.name}`);
+    } else {
+      alert("File upload failed");
     }
   };
 
@@ -140,10 +162,7 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
     alignItems: "center",
     gap: "10px",
   });
-  const ContactList = styled(Box)({
-    flex: 1,
-    overflowY: "auto",
-  });
+  const ContactList = styled(Box)({ flex: 1, overflowY: "auto" });
   const Contact = styled(Box)({
     padding: "15px",
     display: "flex",
@@ -196,9 +215,7 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
     justifyContent: "center",
     borderRadius: "50%",
     transition: "background-color 0.2s ease-in-out",
-    "&:hover": {
-      backgroundColor: "rgba(0, 0, 0, 0.08)",
-    },
+    "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.08)" },
   });
   const ProfileImage = styled("img")({
     width: "40px",
@@ -259,15 +276,11 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
             <Box display="flex" alignItems="center" gap={2}>
               <AvatarGroup max={4}>
                 {participants.map((p) => (
-                  <Avatar
-                    key={p.clerkId}
-                    src={p.imageUrl}
-                    title={`${p.firstName} ${p.lastName}`}
-                  />
+                  <Avatar key={p.clerkId} src={p.imageUrl} />
                 ))}
               </AvatarGroup>
               <Box>
-                <Box fontWeight="bold">Group Chat</Box>
+                <Box fontWeight="bold">{eventTitle || "Group Chat"}</Box>
                 <Box fontSize="0.875rem" color="text.secondary">
                   {participants.length} members
                 </Box>
@@ -287,29 +300,45 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
           </ChatHeader>
 
           <MessageArea>
-            {messages.map((msg, index) => (
-              <Box
-                key={index}
-                display="flex"
-                flexDirection="column"
-                alignItems={
-                  msg.clientId === clientId ? "flex-end" : "flex-start"
-                }
-              >
-                <Box fontSize="0.75rem" color="text.secondary" mb={0.5}>
-                  {msg.clientId === clientId ? "You" : msg.clientId}
+            {messages.map((msgRaw, index) => {
+              const msg = msgRaw as unknown as ChatMessage;
+              const isOwn = msg.senderId === user?.id;
+              const sender = participants.find((p) => p.clerkId === msg.senderId);
+              const senderName = isOwn
+                ? "You"
+                : sender
+                ? `${sender.firstName} ${sender.lastName}`
+                : "Unknown";
+              const timestamp = msg.timestamp || msg.dateSent;
+              const time = timestamp ? dayjs(timestamp).format("HH:mm") : "";
+
+              return (
+                <Box
+                  key={index}
+                  display="flex"
+                  flexDirection="column"
+                  alignItems={isOwn ? "flex-end" : "flex-start"}
+                >
+                  <Box fontSize="0.75rem" color="text.secondary" mb={0.5} textAlign={isOwn ? "right" : "left"}>
+                    {senderName} · {time}
+                  </Box>
+                  <MessageBubble isOwn={isOwn}>{msg.text}</MessageBubble>
                 </Box>
-                <MessageBubble isOwn={msg.clientId === clientId}>
-                  {msg.text}
-                </MessageBubble>
-              </Box>
-            ))}
+              );
+            })}
           </MessageArea>
 
           <InputSection>
-            <IconButton>
+            <IconButton onClick={() => fileInputRef.current?.click()}>
               <FiPaperclip />
             </IconButton>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+              style={{ display: "none" }}
+              accept=".pdf,.jpg,.jpeg,.png"
+            />
             <MessageInput
               placeholder="Type a message..."
               value={message}
