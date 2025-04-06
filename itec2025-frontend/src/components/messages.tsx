@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Message, useMessages } from "@ably/chat";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 import {
   Box,
   CssBaseline,
@@ -27,6 +27,7 @@ interface MessagesProps {
 
 export function Messages({ chatRoomId, clientId }: MessagesProps) {
   const { getToken } = useAuth();
+  const { user } = useUser();
   const [message, setMessage] = useState("My first message with Ably Chat!");
   const [messages, setMessages] = useState<Message[]>([]);
   const [participants, setParticipants] = useState<
@@ -213,7 +214,7 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
       <Container>
         <Sidebar>
           <ProfileSection>
-            <ProfileImage src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde" />
+          <ProfileImage src={user?.imageUrl} />
             <Box>
               <Box fontWeight="bold">My Profile</Box>
               <Box display="flex" alignItems="center" gap={1}>

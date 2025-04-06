@@ -189,22 +189,57 @@ export default function AddEvent() {
                 margin="normal"
                 required
               />
-
-              <DatePicker
-                label="Date"
-                value={form.date}
-                onChange={(newDate) => {
-                  if (newDate) {
-                    setForm((prev) => ({ ...prev, date: newDate }));
-                  }
-                }}
-                slotProps={{
-                  textField: {
-                    fullWidth: true,
-                    margin: "normal",
+          <DatePicker
+            label="Date"
+            value={form.date}
+            onChange={(newDate) => {
+              if (newDate) {
+                setForm((prev) => ({ ...prev, date: newDate }));
+              }
+            }}
+            slotProps={{
+              textField: {
+                fullWidth: true,
+                margin: "normal",
+              },
+              popper: {
+                modifiers: [
+                  {
+                    name: "offset",
+                    options: {
+                      offset: [0, 8],
+                    },
                   },
-                }}
-              />
+                ],
+                sx: {
+                  "& .MuiPaper-root": {
+                    backgroundColor: "#1a0933",
+                    color: "white",
+                  },
+                  "& .MuiPickersDay-dayWithMargin": {
+                    color: "white",
+                  },
+                  "& .MuiTypography-root": {
+                    color: "white",
+                  },
+                  "& .MuiIconButton-root": {
+                    color: "white",
+                  },
+                  "& .MuiPickersCalendarHeader-label": {
+                    color: "white",
+                  },
+                  "& .MuiPickersSlideTransition-root": {
+                    color: "white",
+                  },
+                  "& .MuiDayCalendar-weekDayLabel": {
+                    color: "white",
+                  },
+                },
+              },
+            }}
+          />
+
+
 
               <TextField
                 label="Person Limit"
