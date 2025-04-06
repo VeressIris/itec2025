@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Message, useMessages } from "@ably/chat";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 import {
   Box,
   CssBaseline,
@@ -27,6 +27,7 @@ interface MessagesProps {
 
 export function Messages({ chatRoomId, clientId }: MessagesProps) {
   const { getToken } = useAuth();
+  const { user } = useUser();
   const [message, setMessage] = useState("My first message with Ably Chat!");
   const [messages, setMessages] = useState<Message[]>([]);
   const [participants, setParticipants] = useState<
@@ -35,7 +36,12 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
 
   const { send } = useMessages({
     listener: (event) => {
-      setMessages((prev) => [...prev, event.message]);
+      const normalizedMessage = {
+        ...event.message,
+        clientId: event.message.clientId || "unknown",
+        text: event.message.text || "",
+      };
+      setMessages((prev) => [...prev, normalizedMessage]);
     },
   });
 
@@ -45,7 +51,6 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
       fetchParticipants();
     }
   }, [chatRoomId]);
-
   function fetchMessages() {
     fetch(
       `https://itec2025.onrender.com/getChatroomMessages?chatRoomId=${encodeURIComponent(
@@ -55,7 +60,13 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data.result)) {
-          setMessages(data.result);
+          setMessages(
+            data.result.map((msg: any) => ({
+              ...msg,
+              clientId: msg.sentBy || msg.clientId || "unknown",
+              text: msg.message || msg.text || "",
+            }))
+          );
         }
       })
       .catch((err) => console.error("Error fetching messages:", err));
@@ -213,7 +224,7 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
       <Container>
         <Sidebar>
           <ProfileSection>
-            <ProfileImage src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde" />
+            <ProfileImage src={user?.imageUrl} />
             <Box>
               <Box fontWeight="bold">My Profile</Box>
               <Box display="flex" alignItems="center" gap={1}>
