@@ -47,7 +47,11 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
   }, [chatRoomId]);
 
   function fetchMessages() {
-    fetch(`https://itec2025.onrender.com/getChatroomMessages?chatRoomId=${encodeURIComponent(chatRoomId)}`)
+    fetch(
+      `https://itec2025.onrender.com/getChatroomMessages?chatRoomId=${encodeURIComponent(
+        chatRoomId
+      )}`
+    )
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data.result)) {
@@ -58,7 +62,9 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
   }
 
   function fetchParticipants() {
-    fetch(`https://itec2025.onrender.com/getEventParticipants?chatRoomId=${chatRoomId}`)
+    fetch(
+      `https://itec2025.onrender.com/getChatMembers?chatRoomId=${chatRoomId}`
+    )
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data.participants)) {
@@ -257,9 +263,15 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
               </Box>
             </Box>
             <Box display="flex" gap={2}>
-              <IconButton><FiVideo /></IconButton>
-              <IconButton><FiPhone /></IconButton>
-              <IconButton><FiMoreVertical /></IconButton>
+              <IconButton>
+                <FiVideo />
+              </IconButton>
+              <IconButton>
+                <FiPhone />
+              </IconButton>
+              <IconButton>
+                <FiMoreVertical />
+              </IconButton>
             </Box>
           </ChatHeader>
 
@@ -269,7 +281,9 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
                 key={index}
                 display="flex"
                 flexDirection="column"
-                alignItems={msg.clientId === clientId ? "flex-end" : "flex-start"}
+                alignItems={
+                  msg.clientId === clientId ? "flex-end" : "flex-start"
+                }
               >
                 <Box fontSize="0.75rem" color="text.secondary" mb={0.5}>
                   {msg.clientId === clientId ? "You" : msg.clientId}
@@ -282,15 +296,21 @@ export function Messages({ chatRoomId, clientId }: MessagesProps) {
           </MessageArea>
 
           <InputSection>
-            <IconButton><FiPaperclip /></IconButton>
+            <IconButton>
+              <FiPaperclip />
+            </IconButton>
             <MessageInput
               placeholder="Type a message..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
             />
-            <IconButton><FiSmile /></IconButton>
-            <IconButton onClick={handleSend}><FiSend /></IconButton>
+            <IconButton>
+              <FiSmile />
+            </IconButton>
+            <IconButton onClick={handleSend}>
+              <FiSend />
+            </IconButton>
           </InputSection>
         </MainChat>
       </Container>

@@ -50,11 +50,8 @@ export default function App() {
   // OPTIONAL: Fetch event participants using chatRoomId (id)
   useEffect(() => {
     if (id) {
-      console.log(id)
       axios
         .get(`https://itec2025.onrender.com/getChatMembers?chatRoomId=${id}`)
-
-
         .then((res) => {
           console.log("Participants:", res.data.members);
         })
